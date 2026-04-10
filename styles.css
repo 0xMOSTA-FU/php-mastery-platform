@@ -2950,6 +2950,38 @@ body:has(a:hover) .custom-cursor {
   line-height: 1.65;
 }
 
+/* ==============================   SEO FAQ   ============================== */
+.seo-faq-section {
+  background: linear-gradient(180deg, rgba(10,16,28,.95), rgba(15,23,42,.92));
+}
+.seo-faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+.seo-faq-card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  transition: var(--transition);
+}
+.seo-faq-card:hover {
+  border-color: var(--clr-border2);
+  transform: translateY(-3px);
+  box-shadow: var(--glow-purple);
+}
+.seo-faq-card h3 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: var(--clr-text);
+}
+.seo-faq-card p {
+  color: var(--clr-text-muted);
+  font-size: .88rem;
+  line-height: 1.75;
+}
+
 /* ==============================   MARKET MAP   ============================== */
 .market-map-section { background: var(--clr-bg2); }
 .market-map-grid {
