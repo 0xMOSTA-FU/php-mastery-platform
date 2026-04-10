@@ -81,13 +81,41 @@ function sanitizeHtmlFragment(html) {
   return template.innerHTML;
 }
 
+function sanitizeUrl(rawUrl, { allowRelative = true } = {}) {
+  if (typeof rawUrl !== 'string') return '#';
+
+  const value = rawUrl.trim();
+  if (!value) return '#';
+  if (/[\u0000-\u001F\u007F]/.test(value)) return '#';
+
+  // Fast block for dangerous URI schemes before URL parsing.
+  if (/^(javascript:|vbscript:|data:)/i.test(value)) return '#';
+
+  const isAbsoluteLike = /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(value);
+
+  try {
+    if (!isAbsoluteLike && allowRelative) {
+      if (value.startsWith('/') || value.startsWith('./') || value.startsWith('../') || value.startsWith('#')) {
+        return value;
+      }
+    }
+
+    const parsed = new URL(value, window.location.origin);
+    const protocol = parsed.protocol.toLowerCase();
+    if (protocol === 'http:' || protocol === 'https:' || protocol === 'mailto:' || protocol === 'tel:') {
+      return parsed.href;
+    }
+    return '#';
+  } catch {
+    return '#';
+  }
+}
+
 function hardenExternalLinks(root = document) {
   const scope = root instanceof Document ? root : (root instanceof Element ? root : document);
   scope.querySelectorAll('a[target="_blank"]').forEach(anchor => {
     const href = (anchor.getAttribute('href') || '').trim();
-    if (href && /^(javascript:|data:text\/html)/i.test(href)) {
-      anchor.removeAttribute('href');
-    }
+    if (href) anchor.setAttribute('href', sanitizeUrl(href));
     anchor.setAttribute('rel', 'noopener noreferrer');
   });
 }
@@ -1739,7 +1767,7 @@ function showCourseModal(id) {
     <h3 style="font-size:.9rem;color:var(--clr-text-muted);margin:16px 0 10px;display:flex;align-items:center;gap:6px">
       ${icon('externalLink', { size: 14, color: 'var(--clr-accent2)' })} Official Resources
     </h3>
-    ${c.details.resources.map(r => `<a href="${r}" target="_blank" rel="noopener noreferrer" class="modal-link">↗ ${r}</a><br/>`).join('')}
+    ${c.details.resources.map(r => `<a href="${sanitizeUrl(r)}" target="_blank" rel="noopener noreferrer" class="modal-link">↗ ${escapeHtml(r)}</a><br/>`).join('')}
   `);
 }
 
@@ -1796,7 +1824,7 @@ function renderVideoSources() {
       <p class="instructor-desc">${item.desc}</p>
       <div class="instructor-tags">${item.tags.map(tag => `<span class="instructor-tag">${tag}</span>`).join('')}</div>
       <div class="instructor-links">
-        ${item.links.slice(0, 2).map(link => `<a href="${link.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ ${link.label}</a>`).join('')}
+        ${item.links.slice(0, 2).map(link => `<a href="${sanitizeUrl(link.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">↗ ${escapeHtml(link.label)}</a>`).join('')}
       </div>
       <p class="modal-source-note" style="margin-top:10px">Reviewed: ${item.lastReviewed}</p>
     </article>
@@ -1823,7 +1851,7 @@ function showVideoSourceModal(index) {
     <h3 style="font-size:.9rem;color:var(--clr-text-muted);margin:16px 0 10px;display:flex;align-items:center;gap:6px">
       ${icon('externalLink', { size: 14, color: 'var(--clr-accent2)' })} Official Source Links
     </h3>
-    ${item.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener" class="modal-link">↗ ${link.label}</a><br/>`).join('')}
+    ${item.links.map(link => `<a href="${sanitizeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="modal-link">↗ ${escapeHtml(link.label)}</a><br/>`).join('')}
     <div style="margin-top:14px;padding:12px;border:1px solid var(--clr-border);border-radius:10px;background:var(--clr-bg)">
       <p class="modal-source-note" style="margin:0 0 4px">Last Reviewed: <strong style="color:var(--clr-text)">${item.lastReviewed}</strong></p>
       <p class="modal-source-note" style="margin:0">Verification: ${item.verificationNote}</p>
@@ -1848,7 +1876,7 @@ function showBookModal(i) {
     </div>
     <p>${b.details}</p>
     <p>${b.desc}</p>
-    <a href="${b.link}" target="_blank" rel="noopener noreferrer" class="modal-link">↗ View / Get This Book</a>
+    <a href="${sanitizeUrl(b.link)}" target="_blank" rel="noopener noreferrer" class="modal-link">↗ View / Get This Book</a>
   `);
 }
 
@@ -1951,7 +1979,7 @@ function renderMarketMap() {
 
       <div class="market-refs">
         <h4>Official References</h4>
-        ${role.references.map(ref => `<a href="${ref.url}" target="_blank" rel="noopener">↗ ${ref.label}</a>`).join('')}
+        ${role.references.map(ref => `<a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer">↗ ${escapeHtml(ref.label)}</a>`).join('')}
       </div>
     </article>
   `).join('');
@@ -1998,7 +2026,7 @@ function renderPrelaunchQa() {
             <div class="claim-meta">
               <span class="claim-value">${item.value}</span>
               <span class="claim-date">Reviewed: ${item.reviewedAt}</span>
-              <a href="${item.sourceUrl}" target="_blank" rel="noopener">${item.sourceLabel}</a>
+              <a href="${sanitizeUrl(item.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.sourceLabel)}</a>
             </div>
           </div>
         `).join('')}
@@ -2074,7 +2102,7 @@ function applyStrictFactMode() {
 
     const suffix = document.createElement('span');
     suffix.className = 'strict-source-inline';
-    suffix.innerHTML = `As reported by <a href="${source.url}" target="_blank" rel="noopener">${source.label}</a>`;
+    suffix.innerHTML = `As reported by <a href="${sanitizeUrl(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)}</a>`;
     item.appendChild(suffix);
   });
 
@@ -2085,7 +2113,7 @@ function applyStrictFactMode() {
     const source = detectFactSource(text);
     if (!source) return;
     if (sub.querySelector('a')) return;
-    sub.innerHTML = `As reported by <a href="${source.url}" target="_blank" rel="noopener">${source.label}</a>`;
+    sub.innerHTML = `As reported by <a href="${sanitizeUrl(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)}</a>`;
   });
 }
 
@@ -2115,7 +2143,7 @@ function renderProjects(tab = 'practice') {
         <div class="project-links">
           <button class="project-btn primary" onclick="event.stopPropagation();showProjectModal('${tab}',${i})">View Details</button>
           ${getProjectGithubUrl(p)
-            ? `<a class="project-btn secondary" href="${getProjectGithubUrl(p)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Project Repository ↗</a>`
+            ? `<a class="project-btn secondary" href="${sanitizeUrl(getProjectGithubUrl(p), { allowRelative: false })}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Project Repository ↗</a>`
             : `<button class="project-btn secondary project-btn-disabled" type="button" onclick="event.stopPropagation()" aria-disabled="true" title="Exact official repository for this project is not set">Project Repository: Not Set</button>`}
         </div>
       </div>
@@ -2145,10 +2173,10 @@ function showProjectModal(tab, i) {
       <h3 style="font-size:.9rem;color:var(--clr-text-muted);margin:16px 0 10px;display:flex;align-items:center;gap:6px">
         ${icon('externalLink', { size: 14, color: 'var(--clr-accent2)' })} Trusted References
       </h3>
-      ${references.slice(0, 6).map(ref => `<a href="${ref.url}" target="_blank" rel="noopener" class="modal-link">↗ ${ref.label}</a><br/>`).join('')}
+      ${references.slice(0, 6).map(ref => `<a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer" class="modal-link">↗ ${escapeHtml(ref.label)}</a><br/>`).join('')}
     ` : ''}
     ${githubUrl
-      ? `<a href="${githubUrl}" target="_blank" rel="noopener" class="modal-link" style="margin-top:12px;display:inline-flex">↗ Official Project Repository</a>`
+      ? `<a href="${sanitizeUrl(githubUrl, { allowRelative: false })}" target="_blank" rel="noopener noreferrer" class="modal-link" style="margin-top:12px;display:inline-flex">↗ Official Project Repository</a>`
       : `<p class="modal-source-note" style="margin-top:12px">Official repository link is intentionally hidden until an exact project repository is provided.</p>`}
     <div style="margin-top:16px;padding:16px;background:var(--clr-bg);border-radius:10px;border:1px solid var(--clr-border);display:flex;gap:10px;align-items:flex-start">
       ${icon('trendingUp', { size: 18, color: '#34d399' })}
@@ -2202,7 +2230,7 @@ function renderUseCases() {
       <p>${u.desc}</p>
       <div class="fact-source-inline">
         ${icon('externalLink', { size: 12, color: 'var(--clr-accent2)', noWrap: true })}
-        <a href="${u.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Source: ${u.sourceLabel || 'Reference'}</a>
+        <a href="${sanitizeUrl(u.link)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Source: ${escapeHtml(u.sourceLabel || 'Reference')}</a>
       </div>
       ${(u.claimType || u.lastReviewed) ? `
       <div class="fact-source-inline" style="margin-top:8px;gap:8px;flex-wrap:wrap">
@@ -2239,7 +2267,7 @@ function showUseCaseModal(i) {
     <p>${u.desc}</p>
     <ul>${u.highlights.map(h => `<li>${h}</li>`).join('')}</ul>
     <div class="modal-tag-row">${u.tech.map(t => `<span class="modal-tag">${t}</span>`).join('')}</div>
-    <p class="modal-source-note">Source: <a href="${u.link}" target="_blank" rel="noopener">${u.sourceLabel || 'Reference'}</a></p>
+    <p class="modal-source-note">Source: <a href="${sanitizeUrl(u.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(u.sourceLabel || 'Reference')}</a></p>
     ${(u.claimType || u.lastReviewed || u.verificationNote) ? `
     <div style="margin-top:12px;padding:12px;border:1px solid var(--clr-border);background:var(--clr-bg);border-radius:10px">
       <p class="modal-source-note" style="margin:0 0 6px">Verification</p>
@@ -2248,7 +2276,7 @@ function showUseCaseModal(i) {
       ${u.verificationNote ? `<p class="modal-source-note" style="margin:0">Note: ${u.verificationNote}</p>` : ''}
     </div>
     ` : ''}
-    <a href="${u.link}" target="_blank" rel="noopener noreferrer" class="modal-link" style="margin-top:14px;display:inline-flex;align-items:center;gap:6px">
+    <a href="${sanitizeUrl(u.link)}" target="_blank" rel="noopener noreferrer" class="modal-link" style="margin-top:14px;display:inline-flex;align-items:center;gap:6px">
       ${icon('externalLink', { size: 14, color: 'var(--clr-accent2)', noWrap: true })} Engineering Blog / Learn More
     </a>
   `);
@@ -2286,7 +2314,7 @@ function renderDocs() {
       <h3>${cat}</h3>
       <div class="docs-grid">
         ${items.map((d, i) => `
-          <a class="doc-card reveal" href="${d.link}" target="_blank" rel="noopener">
+          <a class="doc-card reveal" href="${sanitizeUrl(d.link)}" target="_blank" rel="noopener noreferrer">
             <div class="doc-icon" style="background:${d.bg}">
               ${icon(d.iconName, { size: 22, color: d.iconColor, noWrap: true })}
             </div>
@@ -2335,7 +2363,7 @@ function renderInterviewPlaybooks() {
         <ol>
           ${playbook.references.map(ref => `
             <li>
-              <a href="${ref.url}" target="_blank" rel="noopener">${ref.label}</a>
+              <a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.label)}</a>
               <span>${ref.note}</span>
             </li>
           `).join('')}
@@ -2404,7 +2432,7 @@ function renderInterviewQa() {
       <p class="qa-signal"><strong>What interviewer wants:</strong> ${qa.expectedSignal}</p>
       <div class="qa-references">
         ${qa.references.map(ref => `
-          <a href="${ref.url}" target="_blank" rel="noopener">${ref.label}</a>
+          <a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.label)}</a>
         `).join('')}
       </div>
     </article>
@@ -2463,7 +2491,7 @@ function renderJobReadyRoadmap() {
         ${item.milestones.map(milestone => `<li>${milestone}</li>`).join('')}
       </ul>
       <div class="job-week-links">
-        ${item.references.map(ref => `<a href="${ref.url}" target="_blank" rel="noopener">${ref.label}</a>`).join('')}
+        ${item.references.map(ref => `<a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.label)}</a>`).join('')}
       </div>
     </article>
   `).join('');
@@ -2690,7 +2718,7 @@ function renderWhyPhp() {
       <p>${w.desc}</p>
       <div class="fact-source-inline">
         ${icon('externalLink', { size: 12, color: 'var(--clr-accent2)', noWrap: true })}
-        <a href="${w.sourceUrl}" target="_blank" rel="noopener">Source: ${w.sourceLabel}</a>
+        <a href="${sanitizeUrl(w.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source: ${escapeHtml(w.sourceLabel)}</a>
       </div>
       <div class="why-tags">
         ${w.tags.map(t => `<span class="why-tag" style="color:${w.iconColor};background:${w.iconBg};border-color:${w.iconColor}33">${t}</span>`).join('')}
@@ -2711,7 +2739,7 @@ function renderTestimonials() {
       <p class="testimonial-quote">"${t.quote}"</p>
       <div class="fact-source-inline testimonial-source-inline">
         ${icon('externalLink', { size: 12, color: 'var(--clr-accent2)', noWrap: true })}
-        <a href="${t.sourceUrl}" target="_blank" rel="noopener">Source attribution: ${t.sourceLabel}</a>
+        <a href="${sanitizeUrl(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source attribution: ${escapeHtml(t.sourceLabel)}</a>
       </div>
       <div class="testimonial-tags">
         ${t.tags.map(tag => `<span class="testimonial-tag">${tag}</span>`).join('')}
@@ -2822,7 +2850,7 @@ function renderGraveyard() {
       <div class="ts-divider">⸻</div>
       <div class="ts-epitaph">${g.epitaph}</div>
       <div class="ts-cause">${g.cause}</div>
-      <div class="ts-source"><a href="${g.sourceUrl}" target="_blank" rel="noopener">Source: ${g.sourceLabel}</a></div>
+      <div class="ts-source"><a href="${sanitizeUrl(g.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source: ${escapeHtml(g.sourceLabel)}</a></div>
     </div>
   `).join('');
   registerRevealElements(grid);
