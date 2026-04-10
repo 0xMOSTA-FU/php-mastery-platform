@@ -203,6 +203,29 @@ window.addEventListener('scroll', onScroll, { passive: true });
 const sections   = document.querySelectorAll('section[id]');
 const navAnchors = document.querySelectorAll('.nav-link');
 const navContext = document.getElementById('navContext');
+
+function setupStaticActionButtons() {
+  const navCoursesBtn = document.getElementById('navGoCoursesBtn');
+  const heroExploreBtn = document.getElementById('heroExploreCoursesBtn');
+  const heroProjectsBtn = document.getElementById('heroViewProjectsBtn');
+  const heroSearchBtn = document.getElementById('heroQuickSearchBtn');
+
+  navCoursesBtn?.addEventListener('click', () => {
+    document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  heroExploreBtn?.addEventListener('click', () => {
+    document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  heroProjectsBtn?.addEventListener('click', () => {
+    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  heroSearchBtn?.addEventListener('click', () => {
+    document.getElementById('searchTrigger')?.click();
+  });
+}
 const NAV_CONTEXT_LABELS = {
   home: 'Home',
   courses: 'Courses',
@@ -1740,7 +1763,7 @@ function renderCourses(filter = 'all') {
   }
 
   grid.innerHTML = filtered.map((c, i) => `
-    <div class="course-card reveal" onclick="showCourseModal(${c.id})" id="course-${c.id}">
+    <div class="course-card reveal" data-course-id="${c.id}" id="course-${c.id}">
       <div class="course-rank">${String(i + 1).padStart(2, '0')}</div>
       <div class="course-header">
         <div class="course-top">
@@ -1781,6 +1804,14 @@ function renderCourses(filter = 'all') {
       btn.innerHTML = isBookmarked(`course-${id}`)
         ? icon('bookmarkFill',{size:15,color:'#a78bfa',noWrap:true})
         : icon('bookmark',{size:15,color:'#6b7280',noWrap:true});
+    });
+  });
+
+  grid.querySelectorAll('.course-card').forEach(card => {
+    card.addEventListener('click', (event) => {
+      if (event.target instanceof Element && event.target.closest('.course-bookmark')) return;
+      const id = Number(card.getAttribute('data-course-id'));
+      if (Number.isFinite(id)) showCourseModal(id);
     });
   });
 
@@ -1841,11 +1872,17 @@ function renderBooks() {
         <div class="book-tags">${b.tags.map(t => `<span class="book-tag">${t}</span>`).join('')}</div>
         <div class="book-footer">
           <div class="book-rating">${starRating(b.starCount)}</div>
-          <button class="book-read-btn" onclick="showBookModal(${i})">Learn More</button>
+          <button class="book-read-btn js-book-open" type="button" data-book-index="${i}">Learn More</button>
         </div>
       </div>
     </div>
   `).join('');
+  grid.querySelectorAll('.js-book-open').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.getAttribute('data-book-index'));
+      if (Number.isFinite(idx)) showBookModal(idx);
+    });
+  });
   registerRevealElements(grid);
 }
 
@@ -1854,7 +1891,7 @@ function renderVideoSources() {
   if (!grid) return;
 
   grid.innerHTML = VIDEO_SOURCES_DATA.map((item, i) => `
-    <article class="instructor-card reveal spotlight-card" id="video-source-${i}" onclick="showVideoSourceModal(${i})">
+    <article class="instructor-card reveal spotlight-card" id="video-source-${i}" data-video-index="${i}">
       <div class="instructor-head">
         ${iconBadge(item.icon, { bg: item.iconBg, color: item.iconColor, size: 24, badgeSize: 52, radius: '14px' })}
         <div>
@@ -1866,11 +1903,22 @@ function renderVideoSources() {
       <p class="instructor-desc">${item.desc}</p>
       <div class="instructor-tags">${item.tags.map(tag => `<span class="instructor-tag">${tag}</span>`).join('')}</div>
       <div class="instructor-links">
-        ${item.links.slice(0, 2).map(link => `<a href="${sanitizeUrl(link.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">↗ ${escapeHtml(link.label)}</a>`).join('')}
+        ${item.links.slice(0, 2).map(link => `<a href="${sanitizeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="video-source-link">↗ ${escapeHtml(link.label)}</a>`).join('')}
       </div>
       <p class="modal-source-note" style="margin-top:10px">Reviewed: ${item.lastReviewed}</p>
     </article>
   `).join('');
+
+  grid.querySelectorAll('.instructor-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const idx = Number(card.getAttribute('data-video-index'));
+      if (Number.isFinite(idx)) showVideoSourceModal(idx);
+    });
+  });
+
+  grid.querySelectorAll('.video-source-link').forEach(link => {
+    link.addEventListener('click', event => event.stopPropagation());
+  });
 
   registerRevealElements(grid);
 }
@@ -2007,7 +2055,7 @@ function renderMarketMap() {
           ${role.courseIds.map(courseId => {
             const course = COURSES_DATA.find(item => item.id === courseId);
             if (!course) return '';
-            return `<button class="market-chip-btn" type="button" onclick="showCourseModal(${course.id})">${course.title}</button>`;
+            return `<button class="market-chip-btn market-course-open" type="button" data-course-id="${course.id}">${course.title}</button>`;
           }).join('')}
         </div>
       </div>
@@ -2015,7 +2063,7 @@ function renderMarketMap() {
       <div class="market-block">
         <h4>Portfolio Projects</h4>
         <div class="market-actions">
-          ${role.projectRefs.map(projectRef => `<button class="market-chip-btn" type="button" onclick='openProjectByRef(${JSON.stringify(projectRef)})'>${projectRef.title}</button>`).join('')}
+          ${role.projectRefs.map(projectRef => `<button class="market-chip-btn market-project-open" type="button" data-project-tab="${escapeHtml(projectRef.tab)}" data-project-title="${escapeHtml(projectRef.title)}">${escapeHtml(projectRef.title)}</button>`).join('')}
         </div>
       </div>
 
@@ -2025,6 +2073,21 @@ function renderMarketMap() {
       </div>
     </article>
   `).join('');
+
+  grid.querySelectorAll('.market-course-open').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = Number(btn.getAttribute('data-course-id'));
+      if (Number.isFinite(id)) showCourseModal(id);
+    });
+  });
+
+  grid.querySelectorAll('.market-project-open').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-project-tab') || '';
+      const title = btn.getAttribute('data-project-title') || '';
+      openProjectByRef({ tab, title });
+    });
+  });
 
   registerRevealElements(grid);
 }
@@ -2171,7 +2234,7 @@ function renderProjects(tab = 'practice') {
   const grid = document.getElementById('projectsGrid');
   const items = PROJECTS_DATA[tab] || [];
   grid.innerHTML = items.map((p, i) => `
-    <div class="project-card reveal spotlight-card" id="proj-${tab}-${i}" onclick="showProjectModal('${tab}',${i})">
+    <div class="project-card reveal spotlight-card" id="proj-${tab}-${i}" data-project-tab="${tab}" data-project-index="${i}">
       <div class="project-card-banner" style="background:${p.banner}">
         <div class="project-banner-icon icon-bounce">${iconBadge(p.icon, { bg: 'rgba(255,255,255,.15)', color: 'white', size: 28, badgeSize: 56, radius: '14px' })}</div>
       </div>
@@ -2183,14 +2246,37 @@ function renderProjects(tab = 'practice') {
         <p>${p.desc}</p>
         <div class="project-stack">${p.stack.map(s => `<span class="stack-tag">${s}</span>`).join('')}</div>
         <div class="project-links">
-          <button class="project-btn primary" onclick="event.stopPropagation();showProjectModal('${tab}',${i})">View Details</button>
+          <button class="project-btn primary project-view-btn" type="button" data-project-tab="${tab}" data-project-index="${i}">View Details</button>
           ${getProjectGithubUrl(p)
-            ? `<a class="project-btn secondary" href="${sanitizeUrl(getProjectGithubUrl(p), { allowRelative: false })}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Project Repository ↗</a>`
-            : `<button class="project-btn secondary project-btn-disabled" type="button" onclick="event.stopPropagation()" aria-disabled="true" title="Exact official repository for this project is not set">Project Repository: Not Set</button>`}
+            ? `<a class="project-btn secondary project-repo-link" href="${sanitizeUrl(getProjectGithubUrl(p), { allowRelative: false })}" target="_blank" rel="noopener noreferrer">Project Repository ↗</a>`
+            : `<button class="project-btn secondary project-btn-disabled" type="button" aria-disabled="true" title="Exact official repository for this project is not set">Project Repository: Not Set</button>`}
         </div>
       </div>
     </div>
   `).join('');
+
+  grid.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('click', (event) => {
+      if (event.target instanceof Element && event.target.closest('.project-btn')) return;
+      const tabValue = card.getAttribute('data-project-tab') || tab;
+      const idx = Number(card.getAttribute('data-project-index'));
+      if (Number.isFinite(idx)) showProjectModal(tabValue, idx);
+    });
+  });
+
+  grid.querySelectorAll('.project-view-btn').forEach(btn => {
+    btn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const tabValue = btn.getAttribute('data-project-tab') || tab;
+      const idx = Number(btn.getAttribute('data-project-index'));
+      if (Number.isFinite(idx)) showProjectModal(tabValue, idx);
+    });
+  });
+
+  grid.querySelectorAll('.project-repo-link').forEach(link => {
+    link.addEventListener('click', event => event.stopPropagation());
+  });
+
   registerRevealElements(grid);
   addCardTilt('.project-card');
 }
@@ -2259,7 +2345,7 @@ function renderPractices() {
 function renderUseCases() {
   const grid = document.getElementById('usecasesGrid');
   grid.innerHTML = USECASES_DATA.map((u, i) => `
-    <div class="usecase-card reveal spotlight-card" id="usecase-${i}" onclick="showUseCaseModal(${i})">
+    <div class="usecase-card reveal spotlight-card" id="usecase-${i}" data-usecase-index="${i}">
       <div class="usecase-company">
         <div class="company-logo icon-spin" style="background:${u.bgColor}">
           ${icon(u.logo, { size: 28, color: u.iconColor, noWrap: true })}
@@ -2272,7 +2358,7 @@ function renderUseCases() {
       <p>${u.desc}</p>
       <div class="fact-source-inline">
         ${icon('externalLink', { size: 12, color: 'var(--clr-accent2)', noWrap: true })}
-        <a href="${sanitizeUrl(u.link)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Source: ${escapeHtml(u.sourceLabel || 'Reference')}</a>
+        <a href="${sanitizeUrl(u.link)}" target="_blank" rel="noopener noreferrer" class="usecase-source-link">Source: ${escapeHtml(u.sourceLabel || 'Reference')}</a>
       </div>
       ${(u.claimType || u.lastReviewed) ? `
       <div class="fact-source-inline" style="margin-top:8px;gap:8px;flex-wrap:wrap">
@@ -2290,6 +2376,18 @@ function renderUseCases() {
       <div class="usecase-tech">${u.tech.map(t => `<span class="usecase-tech-tag">${t}</span>`).join('')}</div>
     </div>
   `).join('');
+
+  grid.querySelectorAll('.usecase-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const idx = Number(card.getAttribute('data-usecase-index'));
+      if (Number.isFinite(idx)) showUseCaseModal(idx);
+    });
+  });
+
+  grid.querySelectorAll('.usecase-source-link').forEach(link => {
+    link.addEventListener('click', event => event.stopPropagation());
+  });
+
   registerRevealElements(grid);
 }
 
@@ -2850,6 +2948,7 @@ function lazyRenderOnce(targetId, renderFn, rootMargin = '260px 0px') {
 // Note: PHP logo is now inline SVG — no injection needed
 enforceTopLevelWindow();
 initSecurityHardeningObserver();
+setupStaticActionButtons();
 injectRoadmapIcons();
 injectQuizIcons();
 

@@ -8,7 +8,7 @@
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="author" content="0xmosta" />
   <meta name="theme-color" content="#0c1018" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
   <link rel="canonical" href="https://0xmosta-fu.github.io/php-mastery-platform/" />
@@ -183,7 +183,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
         <span class="bookmark-count" id="bookmarkCount" style="display:none">0</span>
       </button>
-      <button class="nav-cta" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Go To Courses</button>
+      <button class="nav-cta" id="navGoCoursesBtn" type="button">Go To Courses</button>
     </div>
     <button class="hamburger" id="hamburger" aria-label="Toggle menu">
       <span></span><span></span><span></span>
@@ -252,15 +252,15 @@
         </div>
       </div>
       <div class="hero-actions">
-        <button class="btn-primary magnetic" data-strength="20" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">
+        <button class="btn-primary magnetic" id="heroExploreCoursesBtn" data-strength="20" type="button">
           <span>Explore Courses</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
-        <button class="btn-secondary" onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'})">
+        <button class="btn-secondary" id="heroViewProjectsBtn" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           View Projects
         </button>
-        <button class="btn-ghost" onclick="document.getElementById('searchTrigger').click()">
+        <button class="btn-ghost" id="heroQuickSearchBtn" type="button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           Quick Search
         </button>
