@@ -44,6 +44,50 @@ function injectQuizIcons() {
 const isFinePointer = window.matchMedia('(pointer: fine)').matches;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+function enforceTopLevelWindow() {
+  if (window.top === window.self) return;
+  try {
+    window.top.location = window.self.location.href;
+  } catch {
+    window.self.location = window.self.location.href;
+  }
+}
+
+function getStorageItem(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function setStorageItem(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Ignore quota and storage-access errors to keep UI functional.
+  }
+}
+
+function removeStorageItem(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore storage-access errors.
+  }
+}
+
+function parseStorageJson(key, fallback) {
+  const raw = getStorageItem(key);
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -275,18 +319,18 @@ const uxDebugState = {
 };
 
 function initJourneySessionProfile() {
-  const raw = localStorage.getItem(JOURNEY_STORAGE_KEY);
+  const raw = getStorageItem(JOURNEY_STORAGE_KEY);
   if (!raw) {
     sessionState.isFirstSession = true;
-    localStorage.setItem(JOURNEY_STORAGE_KEY, JSON.stringify({ firstSeenAt: Date.now(), sessions: 1 }));
+    setStorageItem(JOURNEY_STORAGE_KEY, JSON.stringify({ firstSeenAt: Date.now(), sessions: 1 }));
   } else {
     sessionState.isFirstSession = false;
     try {
       const parsed = JSON.parse(raw);
       const sessions = typeof parsed.sessions === 'number' ? parsed.sessions + 1 : 2;
-      localStorage.setItem(JOURNEY_STORAGE_KEY, JSON.stringify({ ...parsed, sessions, lastSeenAt: Date.now() }));
+      setStorageItem(JOURNEY_STORAGE_KEY, JSON.stringify({ ...parsed, sessions, lastSeenAt: Date.now() }));
     } catch {
-      localStorage.setItem(JOURNEY_STORAGE_KEY, JSON.stringify({ firstSeenAt: Date.now(), sessions: 2 }));
+      setStorageItem(JOURNEY_STORAGE_KEY, JSON.stringify({ firstSeenAt: Date.now(), sessions: 2 }));
     }
   }
 }
@@ -318,7 +362,7 @@ function initRolloutConfig() {
   });
 
   try {
-    const raw = localStorage.getItem(ROLLOUT_CONFIG_STORAGE_KEY);
+    const raw = getStorageItem(ROLLOUT_CONFIG_STORAGE_KEY);
     if (!raw) return;
     const parsed = JSON.parse(raw);
     Object.keys(DEFAULT_ROLLOUT_CONFIG).forEach(key => {
@@ -346,15 +390,15 @@ function initExperimentVariants() {
       journey_cta_copy: 'control',
       journey_tone: 'control',
     };
-    localStorage.setItem(EXPERIMENT_STORAGE_KEY, JSON.stringify(experimentState.variants));
+    setStorageItem(EXPERIMENT_STORAGE_KEY, JSON.stringify(experimentState.variants));
     return;
   }
 
   try {
-    const raw = localStorage.getItem(EXPERIMENT_STORAGE_KEY);
+    const raw = getStorageItem(EXPERIMENT_STORAGE_KEY);
     if (!raw) {
       experimentState.variants = fallback;
-      localStorage.setItem(EXPERIMENT_STORAGE_KEY, JSON.stringify(experimentState.variants));
+      setStorageItem(EXPERIMENT_STORAGE_KEY, JSON.stringify(experimentState.variants));
       return;
     }
     const parsed = JSON.parse(raw);
@@ -369,23 +413,18 @@ function initExperimentVariants() {
 
 function initConversionState() {
   conversionState.funnelId = `funnel-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-  try {
-    const raw = localStorage.getItem(CONVERSION_STORAGE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed.goals === 'object') {
-      conversionState.goals = parsed.goals;
-    }
-  } catch {
+  const parsed = parseStorageJson(CONVERSION_STORAGE_KEY, null);
+  if (parsed && typeof parsed === 'object' && parsed.goals && typeof parsed.goals === 'object') {
+    conversionState.goals = parsed.goals;
+  } else {
     conversionState.goals = {};
   }
 }
 
 function initRolloutGuardState() {
   try {
-    const raw = localStorage.getItem(ROLLOUT_GUARD_STORAGE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
+    const parsed = parseStorageJson(ROLLOUT_GUARD_STORAGE_KEY, null);
+    if (!parsed || typeof parsed !== 'object') return;
     rolloutGuardState.enabled = !!parsed.enabled;
     rolloutGuardState.reason = parsed.reason || '';
     rolloutGuardState.triggeredAt = parsed.triggeredAt || 0;
@@ -401,7 +440,7 @@ function initRolloutGuardState() {
 }
 
 function persistRolloutGuardState() {
-  localStorage.setItem(ROLLOUT_GUARD_STORAGE_KEY, JSON.stringify({
+  setStorageItem(ROLLOUT_GUARD_STORAGE_KEY, JSON.stringify({
     enabled: rolloutGuardState.enabled,
     reason: rolloutGuardState.reason,
     triggeredAt: rolloutGuardState.triggeredAt,
@@ -417,7 +456,7 @@ function triggerRolloutGuard(reason) {
     journey_cta_copy: 'control',
     journey_tone: 'control',
   };
-  localStorage.setItem(EXPERIMENT_STORAGE_KEY, JSON.stringify(experimentState.variants));
+  setStorageItem(EXPERIMENT_STORAGE_KEY, JSON.stringify(experimentState.variants));
   persistRolloutGuardState();
   trackUXEvent('rollout_guard_triggered', { reason });
 }
@@ -428,7 +467,7 @@ function recoverRolloutGuard(reason) {
   rolloutGuardState.reason = '';
   rolloutGuardState.triggeredAt = 0;
   experimentState.variants = createRandomExperimentVariants();
-  localStorage.setItem(EXPERIMENT_STORAGE_KEY, JSON.stringify(experimentState.variants));
+  setStorageItem(EXPERIMENT_STORAGE_KEY, JSON.stringify(experimentState.variants));
   persistRolloutGuardState();
   trackUXEvent('rollout_guard_recovered', { reason, variants: experimentState.variants });
 }
@@ -499,7 +538,7 @@ function mapEventForExports(event) {
 }
 
 function persistConversionState() {
-  localStorage.setItem(CONVERSION_STORAGE_KEY, JSON.stringify({ goals: conversionState.goals, updatedAt: Date.now() }));
+  setStorageItem(CONVERSION_STORAGE_KEY, JSON.stringify({ goals: conversionState.goals, updatedAt: Date.now() }));
 }
 
 function trackConversionGoal(goal, payload = {}) {
@@ -545,9 +584,9 @@ function getJourneyToneKicker(fallback) {
 function initUXDebugState() {
   const params = new URLSearchParams(window.location.search);
   const queryFlag = params.get('uxdebug');
-  if (queryFlag === '1') localStorage.setItem('phpmastery-uxdebug', '1');
-  if (queryFlag === '0') localStorage.removeItem('phpmastery-uxdebug');
-  uxDebugState.enabled = localStorage.getItem('phpmastery-uxdebug') === '1';
+  if (queryFlag === '1') setStorageItem('phpmastery-uxdebug', '1');
+  if (queryFlag === '0') removeStorageItem('phpmastery-uxdebug');
+  uxDebugState.enabled = getStorageItem('phpmastery-uxdebug') === '1';
 }
 
 initRolloutConfig();
@@ -688,7 +727,7 @@ function renderUXDebugPanel() {
   `;
 
   panel.querySelector('#uxDebugHideBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('phpmastery-uxdebug');
+    removeStorageItem('phpmastery-uxdebug');
     uxDebugState.enabled = false;
     renderUXDebugPanel();
   });
@@ -1386,10 +1425,13 @@ function showToast(message, iconName = 'checkCircle', color = '#34d399', duratio
 // =============================================
 // BOOKMARKS (localStorage)
 // =============================================
-let bookmarks = JSON.parse(localStorage.getItem('phpmastery-bookmarks') || '{}');
+let bookmarks = parseStorageJson('phpmastery-bookmarks', {});
+if (!bookmarks || typeof bookmarks !== 'object' || Array.isArray(bookmarks)) {
+  bookmarks = {};
+}
 
 function saveBookmarks() {
-  localStorage.setItem('phpmastery-bookmarks', JSON.stringify(bookmarks));
+  setStorageItem('phpmastery-bookmarks', JSON.stringify(bookmarks));
   updateBookmarkCount();
 }
 function updateBookmarkCount() {
@@ -2806,6 +2848,7 @@ function lazyRenderOnce(targetId, renderFn, rootMargin = '260px 0px') {
 }
 
 // Note: PHP logo is now inline SVG — no injection needed
+enforceTopLevelWindow();
 initSecurityHardeningObserver();
 injectRoadmapIcons();
 injectQuizIcons();
