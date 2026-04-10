@@ -658,7 +658,7 @@ function getNudgeConfiguration(nextStep, intentCfg) {
       kicker: 'Action Reminder',
       title: 'Turn your saved items into practice today.',
       cta: 'Open Projects',
-      note: 'Best conversion: one saved course + one practical project.',
+      note: 'A practical next step: one saved course + one practical project.',
       action: () => scrollToSection('projects'),
     };
   } else if (!intentCfg && nextStep.id === 'docs' && journeyState.visited.has('quiz')) {
@@ -722,7 +722,7 @@ function getIntentConfiguration(nextStep) {
     const levelLabel = level === 'beginner' ? 'Beginner' : level === 'intermediate' ? 'Intermediate' : 'Advanced';
     return {
       kicker: 'Based On Your Quiz Result',
-      title: `${levelLabel} track is your best next move.`,
+      title: `${levelLabel} track is a strong next move.`,
       cta: `Open ${levelLabel} Track`,
       note: 'Follow your recommended path for faster progress.',
       action: () => {
@@ -1491,9 +1491,9 @@ function renderSearchResults(query) {
 const TIMELINE_DATA = [
   { version: 'PHP 1.0', year: '1994', iconName: 'seedling',   iconColor: '#34d399', iconBg: 'rgba(16,185,129,.18)', title: 'Personal Home Page Tools',     desc: 'Rasmus Lerdorf created PHP as a set of CGI scripts to track visits to his online résumé.',     features: ['CGI scripting','Form handling','Database interaction'] },
   { version: 'PHP 3.0', year: '1997', iconName: 'code',       iconColor: '#60a5fa', iconBg: 'rgba(59,130,246,.18)',  title: 'Reborn as a Real Language',   desc: 'Andi Gutmans and Zeev Suraski rewrote the parser. PHP became a proper scripting language.',    features: ['Extensible','OOP basics','Windows support'] },
-  { version: 'PHP 4.0', year: '2000', iconName: 'cpu',        iconColor: '#fbbf24', iconBg: 'rgba(245,158,11,.18)',  title: 'Zend Engine 1.0',             desc: 'The Zend Engine was introduced, dramatically improving performance. PHP usage exploded globally.', features: ['Zend Engine','Sessions','Output buffering'] },
+  { version: 'PHP 4.0', year: '2000', iconName: 'cpu',        iconColor: '#fbbf24', iconBg: 'rgba(245,158,11,.18)',  title: 'Zend Engine 1.0',             desc: 'The Zend Engine was introduced and significantly improved performance for many workloads.', features: ['Zend Engine','Sessions','Output buffering'] },
   { version: 'PHP 5.0', year: '2004', iconName: 'layers',     iconColor: '#a78bfa', iconBg: 'rgba(139,92,246,.18)', title: 'Real Object-Oriented PHP',    desc: 'A complete overhaul of OOP support with interfaces, abstract classes, exceptions, PDO, and SPL.', features: ['Exceptions','Interfaces','PDO','SPL'] },
-  { version: 'PHP 7.0', year: '2015', iconName: 'zap',        iconColor: '#f87171', iconBg: 'rgba(239,68,68,.18)',  title: '2× Faster + Type System',     desc: 'Zend Engine 3, scalar type declarations, return type hints, null coalescing — 2× PHP 5 speed!', features: ['Scalar types','Return types','Null coalescing ??','Spaceship <=>'] },
+  { version: 'PHP 7.0', year: '2015', iconName: 'zap',        iconColor: '#f87171', iconBg: 'rgba(239,68,68,.18)',  title: 'Major Performance + Type System',     desc: 'Zend Engine 3 introduced substantial performance gains versus many PHP 5 workloads, plus scalar types and return type hints.', features: ['Scalar types','Return types','Null coalescing ??','Spaceship <=>'] },
   { version: 'PHP 8.0', year: '2020', iconName: 'lightning',  iconColor: '#fb923c', iconBg: 'rgba(249,115,22,.18)', title: 'JIT + Named Arguments',       desc: 'JIT compilation, union types, named arguments, match expression, attributes, nullsafe operators.', features: ['JIT Compiler','Named args','Match expr','Nullsafe ?.','Attributes'] },
   { version: 'PHP 8.1', year: '2021', iconName: 'target',     iconColor: '#22d3ee', iconBg: 'rgba(6,182,212,.18)',  title: 'Enums + Fibers + Readonly',   desc: 'Native Enums, readonly properties, Fibers for async, intersection types, callable syntax.', features: ['Native Enums','Fibers','Readonly','Intersection types'] },
   { version: 'PHP 8.2', year: '2022', iconName: 'lock',       iconColor: '#e879f9', iconBg: 'rgba(232,121,249,.18)', title: 'Readonly Classes + DNF Types', desc: 'Readonly classes, Disjunctive Normal Form types, true/false/null standalone types.', features: ['Readonly classes','DNF types','true/false types','Fibers improved'] },
@@ -1507,12 +1507,12 @@ const SNIPPETS_DATA = [
   {
     filename: 'UserRepository.php',
     code: `<?php\n\ndeclare(strict_types=1);\n\nnamespace App\\Repository;\n\nuse App\\Models\\User;\nuse App\\Contracts\\UserRepositoryInterface;\nuse App\\Database\\QueryBuilder;\n\nfinal class UserRepository implements UserRepositoryInterface\n{\n    public function __construct(\n        private readonly QueryBuilder $db\n    ) {}\n\n    public function findById(int $id): ?User\n    {\n        return $this->db\n            ->table('users')\n            ->where('id', $id)\n            ->first(User::class);\n    }\n\n    public function findByEmail(string $email): ?User\n    {\n        return $this->db\n            ->table('users')\n            ->where('email', $email)\n            ->first(User::class);\n    }\n\n    public function save(User $user): void\n    {\n        $this->db->upsert('users', $user->toArray(), ['id']);\n    }\n}`,
-    explain: { title: 'Repository Pattern', iconName: 'database', iconColor: '#22d3ee', desc: 'Isolates data access logic from business logic. Your service never touches the database directly.', points: ['Implements an interface — swap DB without changing service','final class prevents inheritance abuse','readonly DI — constructor injection enforced','Each method has one clear data responsibility'] }
+    explain: { title: 'Repository Pattern', iconName: 'database', iconColor: '#22d3ee', desc: 'Isolates data access logic from business logic. Services can stay decoupled from low-level database details.', points: ['Implements an interface — swap DB without changing service','final class prevents inheritance abuse','readonly DI — constructor injection enforced','Each method has one clear data responsibility'] }
   },
   {
     filename: 'JwtMiddleware.php',
     code: `<?php\n\ndeclare(strict_types=1);\n\nnamespace App\\Http\\Middleware;\n\nuse Firebase\\JWT\\JWT;\nuse Firebase\\JWT\\Key;\n\nfinal class JwtMiddleware\n{\n    public function __construct(\n        private readonly AuthService $auth,\n        private readonly string $secret\n    ) {}\n\n    public function __invoke(Request $req, callable $next): Response\n    {\n        $token = $this->extractToken($req);\n\n        if (!$token) {\n            return Response::json(['error' => 'Unauthorized'], 401);\n        }\n\n        try {\n            $payload = JWT::decode($token, new Key($this->secret, 'HS256'));\n            $user    = $this->auth->findById((int) $payload->sub);\n            $req->setUser($user);\n        } catch (\\Exception $e) {\n            return Response::json(['error' => 'Invalid token'], 401);\n        }\n\n        return $next($req);\n    }\n\n    private function extractToken(Request $req): ?string\n    {\n        $header = $req->header('Authorization', '');\n        if (str_starts_with($header, 'Bearer ')) {\n            return substr($header, 7);\n        }\n        return null;\n    }\n}`,
-    explain: { title: 'JWT Auth Middleware', iconName: 'lock', iconColor: '#a78bfa', desc: 'A PSR-15 compatible middleware for validating JSON Web Tokens on protected routes.', points: ['Extracts Bearer token from Authorization header','Decodes and validates JWT signature','Attaches user to request for downstream handlers','Returns 401 on any failure — never leaks info'] }
+    explain: { title: 'JWT Auth Middleware', iconName: 'lock', iconColor: '#a78bfa', desc: 'A PSR-15 compatible middleware for validating JSON Web Tokens on protected routes.', points: ['Extracts Bearer token from Authorization header','Decodes and validates JWT signature','Attaches user to request for downstream handlers','Returns 401 on failures while avoiding detailed token leakage'] }
   },
   {
     filename: 'EventDispatcher.php',
@@ -1522,7 +1522,7 @@ const SNIPPETS_DATA = [
   {
     filename: 'OrderStatus.php',
     code: `<?php\n\ndeclare(strict_types=1);\n\nnamespace App\\Enums;\n\nenum OrderStatus: string\n{\n    case Pending    = 'pending';\n    case Processing = 'processing';\n    case Shipped    = 'shipped';\n    case Delivered  = 'delivered';\n    case Cancelled  = 'cancelled';\n\n    public function label(): string\n    {\n        return match($this) {\n            self::Pending    => 'Pending Payment',\n            self::Processing => 'Processing',\n            self::Shipped    => 'Shipped',\n            self::Delivered  => 'Delivered',\n            self::Cancelled  => 'Cancelled',\n        };\n    }\n\n    public function canTransitionTo(self $status): bool\n    {\n        return match($this) {\n            self::Pending    => in_array($status, [self::Processing, self::Cancelled]),\n            self::Processing => in_array($status, [self::Shipped,    self::Cancelled]),\n            self::Shipped    => $status === self::Delivered,\n            default          => false,\n        };\n    }\n}\n\n// Usage\n$order->status = OrderStatus::Processing;\necho $order->status->label();   // Processing\necho $order->status->value;     // 'processing'`,
-    explain: { title: 'PHP 8.1+ Backed Enums', iconName: 'hash', iconColor: '#a5b4fc', desc: 'Backed enums replace string constants with type-safe, self-documenting state machines.', points: ['Stored as string in database (backed enum)','Business logic lives inside the enum','canTransitionTo() enforces valid state machine','Impossible to pass an invalid status string'] }
+    explain: { title: 'PHP 8.1+ Backed Enums', iconName: 'hash', iconColor: '#a5b4fc', desc: 'Backed enums replace string constants with type-safe, self-documenting state machines.', points: ['Stored as string in database (backed enum)','Business logic lives inside the enum','canTransitionTo() enforces valid state machine','Reduces invalid status values by constraining allowed cases'] }
   }
 ];
 
@@ -2494,7 +2494,7 @@ function showQuizResult() {
   let title, desc, btnText, btnAction, recommendedLevel;
   if (total <= 2) {
     recommendedLevel = 'beginner';
-    title = 'Perfect Start: PHP Fundamentals';
+    title = 'Strong Start: PHP Fundamentals';
     desc = "You're at the beginning of your PHP journey — great! Start with PHP 8.3 Fundamentals for a rock-solid foundation.";
     btnText = 'Start PHP Fundamentals Course';
     btnAction = () => { closeModal(); document.getElementById('courses').scrollIntoView({ behavior: 'smooth' }); renderCourses('beginner'); };

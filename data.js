@@ -46,7 +46,7 @@ const COURSES_DATA = [
     lessons: 32, hours: "16h",
     topics: ["Classes","Interfaces","Traits","SOLID","Design Patterns","Abstract classes","Magic methods","Composition"],
     details: {
-      overview: "Go beyond procedures. Learn how to architect maintainable PHP systems using proven OOP patterns and SOLID principles used at every serious company.",
+      overview: "Go beyond procedures. Learn how to architect maintainable PHP systems using practical OOP patterns and SOLID principles commonly applied in backend teams.",
       syllabus: [
         "Classes, properties, methods — visibility modifiers",
         "Constructor promotion & readonly properties",
@@ -821,10 +821,10 @@ const PROJECTS_DATA = {
       difficulty: "hard", diffLabel: "Advanced",
       title: "Healthcare Appointment System",
       github: "",
-      desc: "Real-world clinic system: doctor scheduling, patient records (HIPAA considerations), notifications, billing.",
+      desc: "Clinic-style system scenario: doctor scheduling, patient records (HIPAA considerations), notifications, and billing flows.",
       stack: ["Laravel","MySQL","Twilio SMS","Stripe","Docker"],
       banner: "linear-gradient(135deg,#10b981,#3b82f6)",
-      detail: "A production-ready system used in actual clinics. Covers complex scheduling logic, patient data privacy, SMS notifications, and payment processing.",
+      detail: "A realistic healthcare backend blueprint covering scheduling logic, patient data privacy concerns, SMS notifications, and payment processing workflows.",
       references: [
         { label: "Twilio Messaging Docs", url: "https://www.twilio.com/docs/messaging" },
         { label: "Stripe API", url: "https://docs.stripe.com/api" }
@@ -1068,7 +1068,7 @@ const PRACTICES_DATA = [
     iconBg: "rgba(239,68,68,.15)", iconColor: "#f87171",
     title: "Validate and Sanitize User Input",
     desc: "Validate and sanitize every piece of data from users. Use prepared statements. Validate data types and business rules before processing.",
-    code: `<span class="cm">// BAD: SQL Injection waiting to happen</span>\n$sql = <span class="str">"SELECT * FROM users WHERE email = '$email'"</span>;\n\n<span class="cm">// GOOD: Always use prepared statements</span>\n$stmt = $pdo->prepare(\n    <span class="str">'SELECT * FROM users WHERE email = ?'</span>\n);\n$stmt->execute([$email]);`,
+    code: `<span class="cm">// BAD: SQL Injection waiting to happen</span>\n$sql = <span class="str">"SELECT * FROM users WHERE email = '$email'"</span>;\n\n<span class="cm">// GOOD: Use prepared statements</span>\n$stmt = $pdo->prepare(\n    <span class="str">'SELECT * FROM users WHERE email = ?'</span>\n);\n$stmt->execute([$email]);`,
     tags: ["Security","SQL Injection","PDO","Validation"]
   },
   {
@@ -1107,7 +1107,7 @@ const PRACTICES_DATA = [
     icon: "fileCode",
     iconBg: "rgba(6,182,212,.15)", iconColor: "#22d3ee",
     title: "Use DTOs for Data Transfer",
-    desc: "Use Data Transfer Objects (DTOs) instead of loose arrays for data passing between layers. Readonly classes in PHP 8.2 are perfect for this.",
+    desc: "Use Data Transfer Objects (DTOs) instead of loose arrays for data passing between layers. Readonly classes in PHP 8.2 are often a good fit for this.",
     code: `<span class="kw">readonly class</span> <span class="cls">CreateUserDTO</span>\n{\n    <span class="kw">public function</span> <span class="fn">__construct</span>(\n        <span class="kw">public</span> <span class="tp">string</span> $name,\n        <span class="kw">public</span> <span class="tp">string</span> $email,\n        <span class="kw">public</span> <span class="tp">string</span> $role = <span class="str">'user'</span>\n    ) {}\n}`,
     tags: ["DTO","PHP 8.2","Architecture"]
   },
@@ -1115,7 +1115,7 @@ const PRACTICES_DATA = [
     icon: "repeat",
     iconBg: "rgba(245,158,11,.15)", iconColor: "#fbbf24",
     title: "Queue Heavy Jobs — Don't Block HTTP",
-    desc: "Never block the HTTP request with slow operations. Send emails, generate PDFs, call external APIs — put them in queues and respond immediately.",
+    desc: "Avoid blocking HTTP requests with slow operations. Send emails, generate PDFs, and external API calls through queues so responses stay fast.",
     code: `<span class="cm">// BAD: Blocks the request for 3 seconds</span>\n<span class="cls">Mail</span>::send(<span class="str">'welcome'</span>, $data, $message);\n\n<span class="cm">// GOOD: Return immediately, send later</span>\n<span class="cls">SendWelcomeEmail</span>::dispatch($user)\n    ->onQueue(<span class="str">'emails'</span>)\n    ->delay(now()->addSeconds(5));`,
     tags: ["Queues","Laravel","Performance","UX"]
   },
@@ -1123,7 +1123,7 @@ const PRACTICES_DATA = [
     icon: "box",
     iconBg: "rgba(16,185,129,.15)", iconColor: "#34d399",
     title: "One Class, One Responsibility (SRP)",
-    desc: "Classes should have only one reason to change. A UserController should not send emails, write to files, or process payments — delegate to services.",
+    desc: "SRP recommends one primary reason to change per class. Keep controllers focused and delegate side effects (email, files, payments) to services.",
     code: `<span class="cm">// BAD: Controller doing too much</span>\n<span class="kw">class</span> <span class="cls">RegisterController</span> {\n    <span class="kw">public function</span> <span class="fn">register</span>() {\n        <span class="cm">// validates + saves + sends email + logs</span>\n    }\n}\n<span class="cm">// GOOD: Delegate to service</span>\n$this->userService->register($dto);`,
     tags: ["SRP","SOLID","Architecture"]
   },
@@ -1361,7 +1361,7 @@ const WHY_PHP_DATA = [
     icon: 'globe',
     iconColor: '#22d3ee',
     iconBg: 'rgba(6,182,212,.18)',
-    title: 'Still Dominant On Server-Side Web',
+    title: 'Large Presence In Server-Side Web Usage',
     desc: 'W3Techs daily-updated data reports PHP at roughly 70%+ share among websites where the server-side language is known.',
     highlight: '70%+',
     highlightLabel: 'known server-side websites',
@@ -1374,7 +1374,7 @@ const WHY_PHP_DATA = [
     icon: 'layers',
     iconColor: '#a78bfa',
     iconBg: 'rgba(139,92,246,.18)',
-    title: 'Huge Package Ecosystem',
+    title: 'Large Package Ecosystem',
     desc: 'Packagist reports a very large ecosystem with public package/version statistics and long-term install metrics.',
     highlight: '400K+',
     highlightLabel: 'registered packages',
@@ -1556,7 +1556,7 @@ const CLI_COMMANDS = {
     action: null
   },
   'python': {
-    out: `<span class="co-err">bash: python: command not found</span>\n<span class="co-dim">Python? We have PHP. Still dominant on the web according to W3Techs.</span>`,
+    out: `<span class="co-err">bash: python: command not found</span>\n<span class="co-dim">Python? This terminal demo is focused on PHP topics.</span>`,
     action: null
   },
   'python3': {
@@ -1591,45 +1591,45 @@ const CLI_COMMANDS = {
 
 const TESTIMONIALS_DATA = [
   {
-    name: 'Adam Wathan',
-    role: 'Founder',
-    company: 'Tailwind',
+    name: 'Community Perspective 1',
+    role: 'Ecosystem Note',
+    company: 'Source: Laravel.com',
     avatar: 'AW',
     avatarGradient: 'linear-gradient(135deg,#7c3aed,#06b6d4)',
-    quote: 'I\'ve been using Laravel for nearly a decade and have never been tempted to switch to anything else.',
+    quote: 'Laravel is frequently presented as a productive choice for building and maintaining PHP web applications.',
     tags: ['Laravel', 'PHP Ecosystem', 'Production'],
     sourceLabel: 'Laravel.com',
     sourceUrl: 'https://laravel.com/'
   },
   {
-    name: 'Ian Callahan',
-    role: 'Engineer',
-    company: 'Harvard Art Museums',
+    name: 'Community Perspective 2',
+    role: 'Ecosystem Note',
+    company: 'Source: Laravel.com',
     avatar: 'IC',
     avatarGradient: 'linear-gradient(135deg,#10b981,#3b82f6)',
-    quote: 'Laravel is our sourdough starter and multitool for web projects large and small. 10 years in, it remains fresh and useful.',
+    quote: 'Teams often use Laravel across both small and large projects because of its tooling and ecosystem support.',
     tags: ['Laravel', 'Web Apps', 'Long-Term Use'],
     sourceLabel: 'Laravel.com',
     sourceUrl: 'https://laravel.com/'
   },
   {
-    name: 'Aaron Francis',
-    role: 'Co-founder',
-    company: 'Try Hard Studios',
+    name: 'Community Perspective 3',
+    role: 'Ecosystem Note',
+    company: 'Source: Laravel.com',
     avatar: 'AF',
     avatarGradient: 'linear-gradient(135deg,#ec4899,#f59e0b)',
-    quote: 'Laravel takes the pain out of building modern, scalable web apps.',
+    quote: 'Laravel emphasizes developer ergonomics while still supporting common scalability patterns.',
     tags: ['Laravel', 'Scalability', 'Developer Experience'],
     sourceLabel: 'Laravel.com',
     sourceUrl: 'https://laravel.com/'
   },
   {
-    name: 'Erika Heidi',
-    role: 'Creator',
-    company: 'Minicli',
+    name: 'Community Perspective 4',
+    role: 'Ecosystem Note',
+    company: 'Source: Laravel.com',
     avatar: 'EH',
     avatarGradient: 'linear-gradient(135deg,#f97316,#a78bfa)',
-    quote: 'Laravel is a breath of fresh air in the PHP ecosystem, with a brilliant community around it.',
+    quote: 'The Laravel community is broad, with many learning resources, packages, and maintenance guides.',
     tags: ['Community', 'Laravel', 'PHP'],
     sourceLabel: 'Laravel.com',
     sourceUrl: 'https://laravel.com/'
@@ -1786,7 +1786,7 @@ const INTERVIEW_QA_DATA = [
     ]
   },
   {
-    question: 'What are non-negotiables before Laravel production deployment?',
+    question: 'What are key checks before Laravel production deployment?',
     answer: 'Disable APP_DEBUG, run config/route/view cache commands where appropriate, ensure queue workers are supervised, and verify environment-specific configuration and health checks.',
     expectedSignal: 'Candidate gives operational specifics, not only code-level answers.',
     references: [
