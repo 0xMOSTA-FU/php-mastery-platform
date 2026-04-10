@@ -2648,7 +2648,7 @@ function renderTestimonials() {
       <p class="testimonial-quote">"${t.quote}"</p>
       <div class="fact-source-inline testimonial-source-inline">
         ${icon('externalLink', { size: 12, color: 'var(--clr-accent2)', noWrap: true })}
-        <a href="${t.sourceUrl}" target="_blank" rel="noopener">Verified quote: ${t.sourceLabel}</a>
+        <a href="${t.sourceUrl}" target="_blank" rel="noopener">Source attribution: ${t.sourceLabel}</a>
       </div>
       <div class="testimonial-tags">
         ${t.tags.map(tag => `<span class="testimonial-tag">${tag}</span>`).join('')}

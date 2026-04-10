@@ -2942,6 +2942,13 @@ body:has(a:hover) .custom-cursor {
   text-decoration: none;
   border-bottom: 1px dashed rgba(34,211,238,.3);
 }
+.community-quotes-note {
+  margin: -34px auto 26px;
+  max-width: 820px;
+  color: var(--clr-text-muted);
+  font-size: .86rem;
+  line-height: 1.65;
+}
 
 /* ==============================   MARKET MAP   ============================== */
 .market-map-section { background: var(--clr-bg2); }
