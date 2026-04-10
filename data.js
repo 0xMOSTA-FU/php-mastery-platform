@@ -1042,8 +1042,8 @@ const PRACTICES_DATA = [
   {
     icon: "typewriter",
     iconBg: "rgba(139,92,246,.15)", iconColor: "#a78bfa",
-    title: "Always Use Typed Properties & Return Types",
-    desc: "Enable strict_types=1 in every file and use full type declarations. PHP 8 gives us union types, nullable types, intersection types, and never return type.",
+    title: "Prefer Typed Properties & Return Types",
+    desc: "Enable strict_types=1 where compatible and use clear type declarations. PHP 8 provides union types, nullable types, intersection types, and the never return type.",
     code: `declare(strict_types=1);\n\nclass UserService\n{\n    <span class="kw">public function</span> <span class="fn">register</span>(\n        <span class="tp">string</span> $email,\n        <span class="tp">string</span> $password\n    ): <span class="cls">User</span> {\n        <span class="cm">// Type system enforces correctness</span>\n    }\n}`,
     tags: ["PHP 8+","Type Safety","strict_types"]
   },
@@ -1051,7 +1051,7 @@ const PRACTICES_DATA = [
     icon: "database",
     iconBg: "rgba(6,182,212,.15)", iconColor: "#22d3ee",
     title: "Repository Pattern for Database Access",
-    desc: "Never put SQL in controllers or models directly. Use repositories to isolate data access logic, making your code testable and replaceable.",
+    desc: "Avoid scattering SQL in controllers. Use repositories or query services to isolate data access logic and improve testability.",
     code: `<span class="kw">interface</span> <span class="cls">UserRepositoryInterface</span>\n{\n    <span class="kw">public function</span> <span class="fn">findById</span>(<span class="tp">int</span> $id): <span class="tp">?User</span>;\n    <span class="kw">public function</span> <span class="fn">save</span>(<span class="cls">User</span> $user): <span class="tp">void</span>;\n}\n\n<span class="kw">class</span> <span class="cls">MySQLUserRepository</span> <span class="kw">implements</span> <span class="cls">UserRepositoryInterface</span>\n{\n    <span class="cm">// Implementation isolated here</span>\n}`,
     tags: ["Repository Pattern","SOLID","Testability"]
   },
@@ -1059,14 +1059,14 @@ const PRACTICES_DATA = [
     icon: "gitBranch",
     iconBg: "rgba(16,185,129,.15)", iconColor: "#34d399",
     title: "Constructor Injection (Dependency Injection)",
-    desc: "Never instantiate dependencies inside a class. Inject them through the constructor. This is the foundation of SOLID code and easy testing.",
+    desc: "Prefer constructor injection over manual instantiation inside classes. It improves decoupling and makes testing easier.",
     code: `<span class="kw">class</span> <span class="cls">OrderService</span>\n{\n    <span class="kw">public function</span> <span class="fn">__construct</span>(\n        <span class="kw">private readonly</span> <span class="cls">OrderRepository</span> $orders,\n        <span class="kw">private readonly</span> <span class="cls">Mailer</span> $mailer,\n        <span class="kw">private readonly</span> <span class="cls">Logger</span> $logger\n    ) {}\n}`,
     tags: ["DI","SOLID","Testability","PHP 8.1"]
   },
   {
     icon: "alertTriangle",
     iconBg: "rgba(239,68,68,.15)", iconColor: "#f87171",
-    title: "Never Trust User Input",
+    title: "Validate and Sanitize User Input",
     desc: "Validate and sanitize every piece of data from users. Use prepared statements. Validate data types and business rules before processing.",
     code: `<span class="cm">// BAD: SQL Injection waiting to happen</span>\n$sql = <span class="str">"SELECT * FROM users WHERE email = '$email'"</span>;\n\n<span class="cm">// GOOD: Always use prepared statements</span>\n$stmt = $pdo->prepare(\n    <span class="str">'SELECT * FROM users WHERE email = ?'</span>\n);\n$stmt->execute([$email]);`,
     tags: ["Security","SQL Injection","PDO","Validation"]
@@ -1083,7 +1083,7 @@ const PRACTICES_DATA = [
     icon: "ruler",
     iconBg: "rgba(245,158,11,.15)", iconColor: "#fbbf24",
     title: "Follow PSR Standards (PSR-1, PSR-2, PSR-12)",
-    desc: "Use PHP-CS-Fixer or PHP_CodeSniffer to automatically enforce PSR-12 coding style. Consistent code across a team is non-negotiable.",
+    desc: "Use PHP-CS-Fixer or PHP_CodeSniffer to enforce PSR-12 coding style. Consistent formatting improves readability and review quality.",
     code: `<span class="cm"># Install PHP-CS-Fixer</span>\ncomposer require --dev \\\n    friendsofphp/php-cs-fixer\n\n<span class="cm"># Auto-fix all code</span>\n./vendor/bin/php-cs-fixer fix \\\n    --rules=@PSR12`,
     tags: ["PSR-12","Code Style","CS-Fixer"]
   },
@@ -1099,7 +1099,7 @@ const PRACTICES_DATA = [
     icon: "checkCircle",
     iconBg: "rgba(139,92,246,.15)", iconColor: "#a78bfa",
     title: "Write Tests First (TDD)",
-    desc: "Write failing tests before writing code. Red → Green → Refactor. Aim for 80%+ coverage on critical paths. Use PHPUnit or Pest PHP.",
+    desc: "A common TDD flow is Red → Green → Refactor. Prioritize coverage for critical paths using PHPUnit or Pest.",
     code: `<span class="kw">it</span>(<span class="str">'creates an order successfully'</span>, <span class="kw">function</span> () {\n    $user = <span class="cls">User</span>::factory()->create();\n    $product = <span class="cls">Product</span>::factory()->create();\n\n    $response = $this->actingAs($user)\n        ->post(<span class="str">'/api/orders'</span>, [\n            <span class="str">'product_id'</span> => $product->id\n        ]);\n\n    $response->assertStatus(201);\n});`,
     tags: ["TDD","PHPUnit","Pest","Testing"]
   },

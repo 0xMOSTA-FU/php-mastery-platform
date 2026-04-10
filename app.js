@@ -1556,7 +1556,7 @@ const DOCS_CATEGORIES_DATA = {
   ],
   'Security & Best Practices': [
     { iconName: 'shield',    iconColor: '#a78bfa', bg: 'rgba(139,92,246,.12)', title: 'OWASP PHP Security Guide', desc: 'XSS, CSRF, SQL injection, session management cheatsheets.', type: 'Security', link: 'https://cheatsheetseries.owasp.org/' },
-    { iconName: 'package',   iconColor: '#34d399', bg: 'rgba(16,185,129,.12)', title: 'Packagist',               desc: 'Discover and explore 449,000+ PHP packages with public stats.', type: 'Registry', link: 'https://packagist.org/' },
+    { iconName: 'package',   iconColor: '#34d399', bg: 'rgba(16,185,129,.12)', title: 'Packagist',               desc: 'Official public registry for PHP packages, versions, and metadata.', type: 'Registry', link: 'https://packagist.org/' },
     { iconName: 'server',    iconColor: '#22d3ee', bg: 'rgba(6,182,212,.12)',  title: 'Nginx PHP-FPM Guide',     desc: 'Server blocks, FastCGI, performance tuning, SSL.', type: 'Server', link: 'https://nginx.org/en/docs/' },
     { iconName: 'gitMerge',  iconColor: '#a5b4fc', bg: 'rgba(99,102,241,.12)', title: 'GitHub Actions for PHP', desc: 'CI/CD pipelines, matrix builds, deploying PHP apps.', type: 'CI/CD', link: 'https://docs.github.com/en/actions' },
   ],
