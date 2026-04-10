@@ -2981,6 +2981,15 @@ body:has(a:hover) .custom-cursor {
   font-size: .88rem;
   line-height: 1.75;
 }
+.seo-faq-link {
+  display: inline-flex;
+  margin-top: 10px;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--clr-cyan);
+  border-bottom: 1px dashed rgba(34,211,238,.4);
+  padding-bottom: 2px;
+}
 
 /* ==============================   MARKET MAP   ============================== */
 .market-map-section { background: var(--clr-bg2); }
