@@ -1012,6 +1012,68 @@ body:has(a:hover) .custom-cursor {
   border-color: rgba(239,68,68,.35);
   background: rgba(239,68,68,.12);
 }
+.trust-policy-card {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(165,180,232,.28);
+  background:
+    linear-gradient(160deg, rgba(79,91,147,.24), rgba(20,28,46,.74));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 30px rgba(0,0,0,.22);
+  max-width: 640px;
+}
+.trust-policy-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.trust-policy-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #d9e3ff;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.trust-policy-kicker::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 10px rgba(52,211,153,.8);
+}
+.trust-policy-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .67rem;
+  color: var(--clr-text-muted);
+  white-space: nowrap;
+}
+.trust-policy-list {
+  display: grid;
+  gap: 6px;
+}
+.trust-policy-list li {
+  position: relative;
+  padding-left: 16px;
+  color: #b8c7df;
+  font-size: .83rem;
+  line-height: 1.55;
+}
+.trust-policy-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #34d399);
+}
 .badge-dot {
   width: 8px; height: 8px;
   background: var(--clr-green);
@@ -2675,6 +2737,18 @@ body:has(a:hover) .custom-cursor {
   .nav-container { border-radius: 14px; padding: 0 16px; }
   .hero { padding-top: 98px; }
   .hero-title { font-size: clamp(2.2rem, 10vw, 3rem); }
+  .trust-policy-card {
+    max-width: 100%;
+    padding: 12px;
+  }
+  .trust-policy-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .trust-policy-date {
+    white-space: normal;
+  }
   .hero-actions { width: 100%; }
   .btn-primary, .btn-secondary, .btn-ghost { width: 100%; justify-content: center; }
   .roadmap-line { display: none; }
