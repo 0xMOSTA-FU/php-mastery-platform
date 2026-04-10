@@ -72,7 +72,7 @@ const navContext = document.getElementById('navContext');
 const NAV_CONTEXT_LABELS = {
   home: 'Home',
   courses: 'Courses',
-  instructors: 'Instructors',
+  videosources: 'Video Sources',
   books: 'Books',
   projects: 'Projects',
   marketmap: 'Market Map',
@@ -1352,7 +1352,7 @@ const searchTrigger = document.getElementById('searchTrigger');
 function buildSearchIndex() {
   const idx = [];
   COURSES_DATA.forEach(c => idx.push({ type: 'Course',   iconName: c.icon, iconColor: c.iconColor, iconBg: c.iconBg, title: c.title, desc: c.desc, action: () => showCourseModal(c.id) }));
-  INSTRUCTORS_DATA.forEach((i, index) => idx.push({ type: 'Instructor', iconName: i.icon, iconColor: i.iconColor, iconBg: i.iconBg, title: `${i.name} (${i.channel})`, desc: i.focus, action: () => showInstructorModal(index) }));
+  VIDEO_SOURCES_DATA.forEach((item, index) => idx.push({ type: 'Video Source', iconName: item.icon, iconColor: item.iconColor, iconBg: item.iconBg, title: `${item.source} (${item.scope})`, desc: item.focus, action: () => showVideoSourceModal(index) }));
   BOOKS_DATA.forEach((b, i) => idx.push({ type: 'Book', iconName: b.icon, iconColor: b.iconColor, iconBg: 'rgba(255,255,255,.08)', title: b.title, desc: b.desc, action: () => showBookModal(i) }));
   PRACTICES_DATA.forEach((p) => idx.push({ type: 'Practice', iconName: p.icon, iconColor: p.iconColor, iconBg: p.iconBg, title: p.title, desc: p.desc }));
   USECASES_DATA.forEach((u, i) => idx.push({ type: 'Use Case', iconName: u.logo, iconColor: u.iconColor, iconBg: u.bgColor, title: u.company, desc: u.desc, action: () => showUseCaseModal(i) }));
@@ -1716,17 +1716,17 @@ function renderBooks() {
   registerRevealElements(grid);
 }
 
-function renderInstructors() {
+function renderVideoSources() {
   const grid = document.getElementById('instructorsGrid');
   if (!grid) return;
 
-  grid.innerHTML = INSTRUCTORS_DATA.map((item, i) => `
-    <article class="instructor-card reveal spotlight-card" id="instructor-${i}" onclick="showInstructorModal(${i})">
+  grid.innerHTML = VIDEO_SOURCES_DATA.map((item, i) => `
+    <article class="instructor-card reveal spotlight-card" id="video-source-${i}" onclick="showVideoSourceModal(${i})">
       <div class="instructor-head">
         ${iconBadge(item.icon, { bg: item.iconBg, color: item.iconColor, size: 24, badgeSize: 52, radius: '14px' })}
         <div>
-          <h3>${item.name}</h3>
-          <p class="instructor-meta">${item.channel} · ${item.region}</p>
+          <h3>${item.source}</h3>
+          <p class="instructor-meta">${item.presenter} · ${item.scope}</p>
         </div>
       </div>
       <p class="instructor-focus">${item.focus}</p>
@@ -1742,23 +1742,23 @@ function renderInstructors() {
   registerRevealElements(grid);
 }
 
-function showInstructorModal(index) {
-  const item = INSTRUCTORS_DATA[index];
+function showVideoSourceModal(index) {
+  const item = VIDEO_SOURCES_DATA[index];
   if (!item) return;
 
   openModal(`
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
       ${iconBadge(item.icon, { bg: item.iconBg, color: item.iconColor, size: 30, badgeSize: 62, radius: '16px' })}
       <div>
-        <h2 style="margin:0">${item.name}</h2>
-        <p style="margin:4px 0 0;color:var(--clr-text-muted)">${item.channel} · ${item.region}</p>
+        <h2 style="margin:0">${item.source}</h2>
+        <p style="margin:4px 0 0;color:var(--clr-text-muted)">${item.presenter} · ${item.scope}</p>
       </div>
     </div>
     <p><strong>Focus:</strong> ${item.focus}</p>
     <p>${item.desc}</p>
     <div class="modal-tag-row">${item.tags.map(tag => `<span class="modal-tag">${tag}</span>`).join('')}</div>
     <h3 style="font-size:.9rem;color:var(--clr-text-muted);margin:16px 0 10px;display:flex;align-items:center;gap:6px">
-      ${icon('externalLink', { size: 14, color: 'var(--clr-accent2)' })} Official Links
+      ${icon('externalLink', { size: 14, color: 'var(--clr-accent2)' })} Official Source Links
     </h3>
     ${item.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener" class="modal-link">↗ ${link.label}</a><br/>`).join('')}
     <div style="margin-top:14px;padding:12px;border:1px solid var(--clr-border);border-radius:10px;background:var(--clr-bg)">
@@ -2726,7 +2726,7 @@ initCLI();
 
 // Medium priority sections (idle time)
 runWhenIdle(() => renderBooks());
-runWhenIdle(() => renderInstructors());
+runWhenIdle(() => renderVideoSources());
 runWhenIdle(() => renderPractices());
 runWhenIdle(() => renderUseCases());
 runWhenIdle(() => renderTimeline());
