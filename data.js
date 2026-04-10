@@ -1160,28 +1160,28 @@ const PRACTICES_DATA = [
     tags: ["Design Pattern","Strategy","Architecture","Extensibility"]
   },
   {
-    icon: "boxes",
+    icon: "database",
     iconBg: "rgba(16,185,129,.15)", iconColor: "#34d399",
-    title: "Factory Method for Integrations",
-    desc: "Create provider clients through factories to centralize configuration and avoid condition-heavy constructors across the codebase.",
-    code: `<span class="kw">abstract class</span> <span class="cls">ProviderFactory</span> {\n    <span class="kw">abstract public function</span> <span class="fn">make</span>(): <span class="cls">ProviderClient</span>;\n}\n\n<span class="kw">final class</span> <span class="cls">AwsS3Factory</span> <span class="kw">extends</span> <span class="cls">ProviderFactory</span> {\n    <span class="kw">public function</span> <span class="fn">make</span>(): <span class="cls">ProviderClient</span> { ... }\n}`,
-    tags: ["Design Pattern","Factory Method","Integrations","Clean Architecture"]
+    title: "Prevent N+1 Queries in Laravel",
+    desc: "Use eager loading in Laravel Eloquent on high-traffic endpoints to avoid N+1 query explosions and unstable response times.",
+    code: `<span class="cm">// BAD: triggers N+1 when accessing $post->author in loop</span>\n$posts = <span class="cls">Post</span>::latest()->take(20)->get();\n\n<span class="cm">// GOOD: eager load related model</span>\n$posts = <span class="cls">Post</span>::with(<span class="str">'author'</span>)\n    ->latest()\n    ->take(20)\n    ->get();`,
+    tags: ["Laravel","Eloquent","MySQL","Performance"]
   },
   {
-    icon: "component",
+    icon: "checkCircle",
     iconBg: "rgba(245,158,11,.15)", iconColor: "#fbbf24",
-    title: "Adapter Pattern for Legacy SDKs",
-    desc: "Wrap third-party or legacy SDKs behind an internal interface so domain logic stays stable if vendor APIs change.",
-    code: `<span class="kw">interface</span> <span class="cls">SmsGateway</span> {\n    <span class="kw">public function</span> <span class="fn">send</span>(<span class="tp">string</span> $to, <span class="tp">string</span> $msg): <span class="tp">void</span>;\n}\n\n<span class="kw">final class</span> <span class="cls">TwilioAdapter</span> <span class="kw">implements</span> <span class="cls">SmsGateway</span> {\n    <span class="kw">public function</span> <span class="fn">__construct</span>(<span class="kw">private</span> <span class="cls">TwilioClient</span> $client) {}\n}`,
-    tags: ["Design Pattern","Adapter","Legacy Integration","Maintainability"]
+    title: "Use Form Request Validation in Laravel",
+    desc: "Move request validation rules out of controllers into FormRequest classes for cleaner code, reusable rules, and safer API boundaries.",
+    code: `<span class="kw">final class</span> <span class="cls">StoreOrderRequest</span> <span class="kw">extends</span> <span class="cls">FormRequest</span>\n{\n    <span class="kw">public function</span> <span class="fn">rules</span>(): <span class="tp">array</span>\n    {\n        <span class="kw">return</span> [\n            <span class="str">'sku'</span> => [<span class="str">'required'</span>, <span class="str">'string'</span>],\n            <span class="str">'qty'</span> => [<span class="str">'required'</span>, <span class="str">'integer'</span>, <span class="str">'min:1'</span>],\n        ];\n    }\n}`,
+    tags: ["Laravel","Validation","API Safety","Maintainability"]
   },
   {
-    icon: "target",
+    icon: "ruler",
     iconBg: "rgba(236,72,153,.15)", iconColor: "#f472b6",
-    title: "Specification Pattern for Complex Filters",
-    desc: "Represent business rules as composable specifications when query conditions become dynamic and hard to maintain.",
-    code: `<span class="kw">interface</span> <span class="cls">Specification</span> {\n    <span class="kw">public function</span> <span class="fn">isSatisfiedBy</span>(<span class="kw">mixed</span> $candidate): <span class="tp">bool</span>;\n}\n\n<span class="kw">final class</span> <span class="cls">AndSpec</span> <span class="kw">implements</span> <span class="cls">Specification</span> { ... }\n<span class="kw">final class</span> <span class="cls">PremiumUserSpec</span> <span class="kw">implements</span> <span class="cls">Specification</span> { ... }`,
-    tags: ["Design Pattern","Specification","DDD","Query Rules"]
+    title: "Treat Migrations as Production Contracts",
+    desc: "Use Laravel migrations carefully for schema evolution: backward-compatible changes first, then app rollout, then cleanup.",
+    code: `<span class="cm">// Phase 1: additive change</span>\nSchema::table(<span class="str">'orders'</span>, <span class="kw">function</span> (<span class="cls">Blueprint</span> $table) {\n    $table->string(<span class="str">'external_id'</span>)->nullable()->index();\n});\n\n<span class="cm">// Phase 2: deploy app writing both old/new fields</span>\n<span class="cm">// Phase 3: backfill + enforce constraints in a follow-up migration</span>`,
+    tags: ["Laravel","MySQL","Migrations","Production Safety"]
   },
   {
     icon: "repeat",
@@ -1214,224 +1214,124 @@ const PRACTICES_DATA = [
 // =============================================
 const USECASES_DATA = [
   {
-    logo: "wikipedia",
+    logo: "lightning",
     bgColor: "rgba(59,130,246,.15)",
     iconColor: "#60a5fa",
-    company: "Wikipedia",
-    scale: "MediaWiki platform powers Wikipedia",
-    desc: "MediaWiki states that it powers Wikipedia, and its installation/operations documentation is centered on a PHP-based runtime stack.",
+    company: "Laravel Production Lifecycle",
+    scale: "Documented release and support windows",
+    desc: "Laravel publishes versioning and support policy windows, which directly impact production backend maintenance planning.",
     highlights: [
-      "MediaWiki is used to run Wikipedia",
-      "Operational setup includes PHP requirements",
-      "Widely used for documentation and collaboration platforms",
-      "Open-source ecosystem with long maintenance history"
+      "Major releases follow semantic versioning",
+      "Bug-fix and security windows are clearly documented",
+      "Operational planning is easier for backend teams",
+      "Directly relevant to Laravel API maintenance"
     ],
-    tech: ["PHP 8+","MediaWiki","MariaDB","Varnish","Memcached"],
-    link: "https://www.mediawiki.org/wiki/MediaWiki",
-    sourceLabel: "MediaWiki.org",
+    tech: ["Laravel","PHP","Release Management","Backend Ops"],
+    link: "https://laravel.com/docs/12.x/releases",
+    sourceLabel: "Laravel Release Notes",
     lastReviewed: "2026-04-10",
     claimType: "static",
-    verificationNote: "Core claim is structural and documented by the project itself; review periodically for wording changes."
+    verificationNote: "Policy details are official framework documentation and should be rechecked each major release."
   },
   {
-    logo: "wordpress",
+    logo: "database",
     bgColor: "rgba(99,102,241,.15)",
     iconColor: "#a5b4fc",
-    company: "WordPress",
-    scale: "Over 43% of all sites",
-    desc: "WordPress states that it is built on PHP and MySQL and is used by over 43% of sites across the web.",
+    company: "MySQL Query Analysis",
+    scale: "Official EXPLAIN / EXPLAIN ANALYZE workflow",
+    desc: "MySQL documentation provides direct guidance for execution-plan analysis, essential for PHP backend endpoint performance tuning.",
     highlights: [
-      "Built on PHP and MySQL",
-      "Open-source GPLv2 project",
-      "Used by a very large share of websites",
-      "Strong ecosystem for CMS and publishing"
+      "Identify full scans and missing index usage",
+      "Compare plans before/after query changes",
+      "Use plan data for backend optimization decisions",
+      "Core skill for MySQL-heavy Laravel/PHP apps"
     ],
-    tech: ["PHP","MySQL","WordPress Core","REST API"],
-    link: "https://wordpress.org/about/",
-    sourceLabel: "WordPress.org",
+    tech: ["MySQL","EXPLAIN","Indexing","Backend Performance"],
+    link: "https://dev.mysql.com/doc/refman/8.0/en/explain.html",
+    sourceLabel: "MySQL Manual",
     lastReviewed: "2026-04-10",
-    claimType: "dynamic",
-    verificationNote: "Contains a percentage metric (43%+), so this entry should be re-verified on scheduled audits."
+    claimType: "static",
+    verificationNote: "Methodology is stable in official docs; examples and versions may evolve over releases."
   },
   {
-    logo: "globe",
+    logo: "repeat",
     bgColor: "rgba(139,92,246,.15)",
     iconColor: "#a78bfa",
-    company: "PHP On The Public Web",
-    scale: "71.7% of known server-side websites",
-    desc: "W3Techs reports daily usage data showing PHP as the server-side language for 71.7% of websites where the server-side language is known.",
+    company: "Laravel Transaction-Safe Flows",
+    scale: "Atomic write patterns for critical operations",
+    desc: "Laravel and MySQL patterns for transactional writes are essential for orders, inventory, and payment state integrity.",
     highlights: [
-      "Daily-updated usage statistics",
-      "Version-share tracking across major branches",
-      "Long-term trend data for backend adoption",
-      "Transparent methodology page"
+      "Use DB transactions for multi-step writes",
+      "Separate side effects from commit boundaries",
+      "Reduce partial-state failures in production",
+      "Directly maps to e-commerce and billing backends"
     ],
-    tech: ["PHP","W3Techs Reports","Version Trends"],
-    link: "https://w3techs.com/technologies/details/pl-php",
-    sourceLabel: "W3Techs",
+    tech: ["Laravel","MySQL","Transactions","Data Integrity"],
+    link: "https://laravel.com/docs/12.x/database#database-transactions",
+    sourceLabel: "Laravel Database Docs",
     lastReviewed: "2026-04-10",
-    claimType: "dynamic",
-    verificationNote: "Daily-updated market-share statistic; date-bound and requires periodic re-checks."
+    claimType: "static",
+    verificationNote: "Concept is stable; implementation details should follow framework-version docs."
   },
   {
     logo: "package",
     bgColor: "rgba(236,72,153,.15)",
     iconColor: "#f472b6",
-    company: "Packagist (Composer Ecosystem)",
-    scale: "Large public package ecosystem",
-    desc: "Packagist publishes public statistics that show the scale and activity of the PHP package ecosystem.",
+    company: "Composer + Packagist Dependency Operations",
+    scale: "Official package registry and dependency workflow",
+    desc: "Composer documentation and Packagist are central to secure, maintainable PHP backend dependency management.",
     highlights: [
-      "Public package and version counts",
-      "Public install trend statistics",
-      "Public statistics dashboard",
-      "Core pillar of Composer workflows"
+      "Dependency pinning and update strategy",
+      "Package discovery from official registry",
+      "Version constraints for production safety",
+      "Critical for Laravel/PHP backend delivery"
     ],
-    tech: ["Composer","Packagist","PHP"],
-    link: "https://packagist.org/statistics",
-    sourceLabel: "Packagist",
+    tech: ["Composer","Packagist","PHP","Laravel"],
+    link: "https://getcomposer.org/doc/",
+    sourceLabel: "Composer Docs",
     lastReviewed: "2026-04-10",
-    claimType: "dynamic",
-    verificationNote: "Package/version/install counters are live and expected to change continuously."
+    claimType: "static",
+    verificationNote: "Dependency-management principles are documentation-based and highly relevant to PHP backend projects."
   },
   {
-    logo: "lightning",
+    logo: "shield",
     bgColor: "rgba(6,182,212,.15)",
     iconColor: "#22d3ee",
-    company: "Laravel",
-    scale: "Documented release and support policy",
-    desc: "Laravel publishes explicit versioning and support policy windows, making it practical for production upgrade planning.",
+    company: "Laravel Query Safety + SQL Injection Defense",
+    scale: "Framework binding + OWASP guidance",
+    desc: "Secure backend APIs depend on safe query construction and validation. Laravel query builder guidance aligns with OWASP SQL injection prevention.",
     highlights: [
-      "Semantic versioning policy documented",
-      "18 months bug fixes and 2 years security fixes",
-      "First-party packages for queues, auth, observability, and billing",
-      "Clear compatibility expectations for PHP versions"
+      "Parameterized query patterns",
+      "Validation and sanitization at request boundaries",
+      "Avoid string-concatenated SQL in controllers",
+      "Defense-in-depth for PHP/MySQL APIs"
     ],
-    tech: ["Laravel","Eloquent","Queues","Testing"],
-    link: "https://laravel.com/docs/12.x/releases",
-    sourceLabel: "Laravel Release Notes",
+    tech: ["Laravel","PHP","MySQL","OWASP"],
+    link: "https://laravel.com/docs/12.x/queries",
+    sourceLabel: "Laravel Query Builder",
     lastReviewed: "2026-04-10",
     claimType: "static",
-    verificationNote: "Versioning/support policy claims are documentation-based and change mainly at release milestones."
+    verificationNote: "Framework query guidance is paired with OWASP principles for backend security correctness."
   },
   {
-    logo: "music",
+    logo: "activity",
     bgColor: "rgba(16,185,129,.15)",
     iconColor: "#34d399",
-    company: "Symfony",
-    scale: "Public ecosystem metrics available",
-    desc: "Symfony provides public ecosystem stats and states that Symfony components are used by projects like Laravel, Drupal, API Platform, and Composer.",
+    company: "Laravel Queues + Redis Workers",
+    scale: "Asynchronous backend processing baseline",
+    desc: "Laravel queue workers with Redis are a practical baseline for moving heavy backend tasks out of request-response paths.",
     highlights: [
-      "Reusable components used across the PHP ecosystem",
-      "Strict release and security policy",
-      "Enterprise-oriented LTS model",
-      "Large public community and conference network"
+      "Queue-heavy jobs avoid HTTP blocking",
+      "Retry handling for transient failures",
+      "Worker supervision for production stability",
+      "Common requirement in Laravel backend roles"
     ],
-    tech: ["Symfony","Doctrine","Console","Messenger"],
-    link: "https://symfony.com/",
-    sourceLabel: "Symfony.com",
-    lastReviewed: "2026-04-10",
-    claimType: "dynamic",
-    verificationNote: "Community/download figures are public metrics that can change; keep wording source-attributed."
-  },
-  {
-    logo: "layers2",
-    bgColor: "rgba(56,189,248,.15)",
-    iconColor: "#38bdf8",
-    company: "Drupal",
-    scale: "Enterprise CMS with explicit PHP requirements",
-    desc: "Drupal publishes a dedicated system requirements guide, including PHP requirements and operational prerequisites for production deployments.",
-    highlights: [
-      "Official system requirements and hosting guidance",
-      "Dedicated PHP requirements documentation",
-      "Composer-first installation and update workflow",
-      "Industry-specific case studies and long-term ecosystem support"
-    ],
-    tech: ["Drupal","PHP","Composer","MySQL/MariaDB"],
-    link: "https://www.drupal.org/docs/getting-started/system-requirements",
-    sourceLabel: "Drupal Docs",
+    tech: ["Laravel","Redis","Queues","Backend Reliability"],
+    link: "https://laravel.com/docs/12.x/queues",
+    sourceLabel: "Laravel Queues",
     lastReviewed: "2026-04-10",
     claimType: "static",
-    verificationNote: "System-requirement claims are documentation-driven and generally stable between major updates."
-  },
-  {
-    logo: "cloud",
-    bgColor: "rgba(16,185,129,.15)",
-    iconColor: "#34d399",
-    company: "Nextcloud",
-    scale: "Self-hosted collaboration stack with defined PHP runtime matrix",
-    desc: "Nextcloud server documentation lists supported PHP runtimes, web server modes, and database options for production deployments.",
-    highlights: [
-      "Explicit PHP runtime support table",
-      "Apache and Nginx deployment modes documented",
-      "Database support matrix and transaction requirements",
-      "Official hardening and server tuning documentation"
-    ],
-    tech: ["Nextcloud","PHP","Nginx/Apache","PostgreSQL/MySQL"],
-    link: "https://docs.nextcloud.com/server/latest/admin_manual/installation/system_requirements.html",
-    sourceLabel: "Nextcloud Admin Manual",
-    lastReviewed: "2026-04-10",
-    claimType: "dynamic",
-    verificationNote: "Runtime/database support matrix changes over releases; verify against current admin manual revision."
-  },
-  {
-    logo: "database",
-    bgColor: "rgba(245,158,11,.15)",
-    iconColor: "#fbbf24",
-    company: "phpMyAdmin",
-    scale: "Long-running PHP database administration project",
-    desc: "phpMyAdmin describes itself as a PHP-based web front-end for MySQL and documents a long release history with active maintenance.",
-    highlights: [
-      "Project history documents PHP-based origin",
-      "Public milestone release timeline",
-      "Open-source contributor model",
-      "Practical relevance for database operations and admin workflows"
-    ],
-    tech: ["phpMyAdmin","PHP","MySQL/MariaDB","Web Admin"],
-    link: "https://www.phpmyadmin.net/about/",
-    sourceLabel: "phpMyAdmin.org",
-    lastReviewed: "2026-04-10",
-    claimType: "static",
-    verificationNote: "Historical and project-identity claims are stable but should still be spot-checked on major site updates."
-  },
-  {
-    logo: "clock",
-    bgColor: "rgba(245,158,11,.15)",
-    iconColor: "#fbbf24",
-    company: "PHP Release & Security Lifecycle",
-    scale: "Transparent supported/unsupported branches",
-    desc: "PHP.net publishes support timelines and EOL schedules per branch, which helps teams plan upgrades and reduce security risk.",
-    highlights: [
-      "Official EOL page per PHP branch",
-      "Migration guides linked for each branch",
-      "Security and bug-fix release cadence",
-      "Clear upgrade guidance from the PHP team"
-    ],
-    tech: ["PHP.net","Migration Guides","Security Updates"],
-    link: "https://www.php.net/eol.php",
-    sourceLabel: "PHP.net",
-    lastReviewed: "2026-04-10",
-    claimType: "dynamic",
-    verificationNote: "Supported branches and lifecycle windows update over time; re-check during each release cycle."
-  },
-  {
-    logo: "rocket",
-    bgColor: "rgba(239,68,68,.15)",
-    iconColor: "#f87171",
-    company: "PHP 8 Modern Language Features",
-    scale: "JIT + typed language evolution",
-    desc: "PHP 8 introduced JIT, union types, attributes, match expressions, and other modern features documented in official release notes.",
-    highlights: [
-      "JIT engines documented in release notes",
-      "Union types and strict type features",
-      "Attributes and constructor property promotion",
-      "Improved type error consistency"
-    ],
-    tech: ["PHP 8+","JIT","Type System"],
-    link: "https://www.php.net/releases/8.0/en.php",
-    sourceLabel: "PHP 8 Release Notes",
-    lastReviewed: "2026-04-10",
-    claimType: "static",
-    verificationNote: "Feature-introduction claims are tied to official release notes and are generally stable post-release."
+    verificationNote: "Queue worker guidance is official framework documentation used in real backend operations."
   }
 ];
 
