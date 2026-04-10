@@ -44,6 +44,68 @@ function injectQuizIcons() {
 const isFinePointer = window.matchMedia('(pointer: fine)').matches;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function sanitizeHtmlFragment(html) {
+  const template = document.createElement('template');
+  template.innerHTML = String(html);
+
+  template.content
+    .querySelectorAll('script, iframe, object, embed, meta[http-equiv="refresh"]')
+    .forEach(el => el.remove());
+
+  template.content.querySelectorAll('*').forEach(el => {
+    Array.from(el.attributes).forEach(attr => {
+      const name = attr.name.toLowerCase();
+      const value = String(attr.value || '').trim();
+
+      if (name.startsWith('on')) {
+        el.removeAttribute(attr.name);
+        return;
+      }
+
+      if ((name === 'href' || name === 'src' || name === 'xlink:href')
+        && /^(javascript:|data:text\/html)/i.test(value)) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+
+  return template.innerHTML;
+}
+
+function hardenExternalLinks(root = document) {
+  const scope = root instanceof Document ? root : (root instanceof Element ? root : document);
+  scope.querySelectorAll('a[target="_blank"]').forEach(anchor => {
+    const href = (anchor.getAttribute('href') || '').trim();
+    if (href && /^(javascript:|data:text\/html)/i.test(href)) {
+      anchor.removeAttribute('href');
+    }
+    anchor.setAttribute('rel', 'noopener noreferrer');
+  });
+}
+
+function initSecurityHardeningObserver() {
+  hardenExternalLinks(document);
+
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (node instanceof Element) hardenExternalLinks(node);
+      });
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 // =============================================
 // SCROLL — throttled with rAF for performance
 // =============================================
@@ -1330,7 +1392,8 @@ const modalContent = document.getElementById('modalContent');
 const modalClose   = document.getElementById('modalClose');
 
 function openModal(html) {
-  modalContent.innerHTML = html;
+  modalContent.innerHTML = sanitizeHtmlFragment(html);
+  hardenExternalLinks(modalContent);
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1444,11 +1507,11 @@ function renderSearchResults(query) {
     trackUXEvent('search_query', { queryLength: q.length });
   }
   if (!q) {
-    searchResults.innerHTML = `
+    searchResults.innerHTML = sanitizeHtmlFragment(`
       <div class="search-empty">
         <div class="search-empty-icon">${icon('search', { size: 36, color: '#4b5563' })}</div>
         <p>Type to search courses, books, practices, use cases…</p>
-      </div>`;
+      </div>`);
     return;
   }
   const matches = searchIndex.filter(item =>
@@ -1456,25 +1519,25 @@ function renderSearchResults(query) {
   ).slice(0, 8);
 
   if (!matches.length) {
-    searchResults.innerHTML = `
+    searchResults.innerHTML = sanitizeHtmlFragment(`
       <div class="search-empty">
         <div class="search-empty-icon">${icon('alertTriangle', { size: 36, color: '#4b5563' })}</div>
-        <p>No results for "<strong>${query}</strong>"</p>
-      </div>`;
+        <p>No results for "<strong>${escapeHtml(query)}</strong>"</p>
+      </div>`);
     return;
   }
-  searchResults.innerHTML = matches.map((item, i) => `
+  searchResults.innerHTML = sanitizeHtmlFragment(matches.map((item, i) => `
     <div class="search-result-item" id="sr-${i}">
       <div class="search-result-icon" style="background:${item.iconBg || 'rgba(139,92,246,.15)'}">
         ${icon(item.iconName, { size: 18, color: item.iconColor || '#a78bfa', noWrap: true })}
       </div>
       <div class="search-result-text">
-        <h4>${item.title}</h4>
-        <p>${item.desc.slice(0, 80)}…</p>
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>${escapeHtml(item.desc.slice(0, 80))}…</p>
       </div>
-      <span class="search-result-type">${icon('arrowRight', { size: 14, color: '#6b7280', noWrap: true })} ${item.type}</span>
+      <span class="search-result-type">${icon('arrowRight', { size: 14, color: '#6b7280', noWrap: true })} ${escapeHtml(item.type)}</span>
     </div>
-  `).join('');
+  `).join(''));
   matches.forEach((item, i) => {
     document.getElementById(`sr-${i}`).addEventListener('click', () => {
       closeSearch();
@@ -1676,7 +1739,7 @@ function showCourseModal(id) {
     <h3 style="font-size:.9rem;color:var(--clr-text-muted);margin:16px 0 10px;display:flex;align-items:center;gap:6px">
       ${icon('externalLink', { size: 14, color: 'var(--clr-accent2)' })} Official Resources
     </h3>
-    ${c.details.resources.map(r => `<a href="${r}" target="_blank" class="modal-link">↗ ${r}</a><br/>`).join('')}
+    ${c.details.resources.map(r => `<a href="${r}" target="_blank" rel="noopener noreferrer" class="modal-link">↗ ${r}</a><br/>`).join('')}
   `);
 }
 
@@ -1785,7 +1848,7 @@ function showBookModal(i) {
     </div>
     <p>${b.details}</p>
     <p>${b.desc}</p>
-    <a href="${b.link}" target="_blank" class="modal-link">↗ View / Get This Book</a>
+    <a href="${b.link}" target="_blank" rel="noopener noreferrer" class="modal-link">↗ View / Get This Book</a>
   `);
 }
 
@@ -2185,7 +2248,7 @@ function showUseCaseModal(i) {
       ${u.verificationNote ? `<p class="modal-source-note" style="margin:0">Note: ${u.verificationNote}</p>` : ''}
     </div>
     ` : ''}
-    <a href="${u.link}" target="_blank" class="modal-link" style="margin-top:14px;display:inline-flex;align-items:center;gap:6px">
+    <a href="${u.link}" target="_blank" rel="noopener noreferrer" class="modal-link" style="margin-top:14px;display:inline-flex;align-items:center;gap:6px">
       ${icon('externalLink', { size: 14, color: 'var(--clr-accent2)', noWrap: true })} Engineering Blog / Learn More
     </a>
   `);
@@ -2715,6 +2778,7 @@ function lazyRenderOnce(targetId, renderFn, rootMargin = '260px 0px') {
 }
 
 // Note: PHP logo is now inline SVG — no injection needed
+initSecurityHardeningObserver();
 injectRoadmapIcons();
 injectQuizIcons();
 
@@ -2819,7 +2883,7 @@ function initCLI() {
   function appendOutput(html) {
     const el = document.createElement('div');
     el.className = 'cli-output-block';
-    el.innerHTML = html.replace(/\n/g, '<br>');
+    el.innerHTML = sanitizeHtmlFragment(html.replace(/\n/g, '<br>'));
     history.appendChild(el);
     history.scrollTop = history.scrollHeight;
   }
@@ -2833,10 +2897,6 @@ function initCLI() {
     } else {
       appendOutput(`<span class="co-err">bash: ${escapeHtml(cmd)}: command not found</span>\n<span class="co-dim">Type <span class="co-cmd">help</span> to see available commands</span>`);
     }
-  }
-
-  function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   // Click anywhere on CLI focuses input
