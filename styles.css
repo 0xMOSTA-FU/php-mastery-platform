@@ -196,6 +196,7 @@ body:has(a:hover) .custom-cursor {
 
 /* ---- Progressive Render Skeletons ---- */
 .courses-grid:empty,
+.instructors-grid:empty,
 .books-grid:empty,
 .projects-grid:empty,
 .practices-grid:empty,
@@ -213,6 +214,7 @@ body:has(a:hover) .custom-cursor {
 }
 
 .courses-grid:empty::before,
+.instructors-grid:empty::before,
 .books-grid:empty::before,
 .projects-grid:empty::before,
 .practices-grid:empty::before,
@@ -1760,6 +1762,45 @@ body:has(a:hover) .custom-cursor {
 /* ==============================   BOOKS   ============================== */
 .books-section { background: var(--clr-bg); }
 .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 24px; }
+
+/* ==============================   INSTRUCTORS   ============================== */
+.instructors-section { background: var(--clr-bg); }
+.instructors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+.instructor-card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+.instructor-card:hover {
+  border-color: var(--clr-border2);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-card), var(--glow-purple);
+}
+.instructor-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.instructor-head h3 { margin: 0; font-size: 1.02rem; }
+.instructor-meta { margin: 4px 0 0; font-size: .78rem; color: var(--clr-text-muted); }
+.instructor-focus { font-size: .82rem; color: var(--clr-cyan); margin-bottom: 8px; }
+.instructor-desc { font-size: .84rem; color: var(--clr-text-muted); line-height: 1.65; margin-bottom: 12px; }
+.instructor-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.instructor-tag {
+  font-size: .69rem;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(136,146,191,.28);
+  background: rgba(136,146,191,.1);
+  color: var(--clr-text-muted);
+}
+.instructor-links { display: flex; flex-direction: column; gap: 6px; }
+.instructor-links a {
+  font-size: .8rem;
+  color: var(--clr-accent2);
+  width: fit-content;
+  border-bottom: 1px dashed rgba(56,178,212,.35);
+}
 .book-card {
   background: var(--clr-surface);
   border: 1px solid var(--clr-border);
@@ -2661,7 +2702,7 @@ body:has(a:hover) .custom-cursor {
   .hero { padding: 90px 18px 60px; }
   .hero-title { font-size: 2.2rem; }
   .hero-stats { gap: 14px; }
-  .courses-grid, .books-grid, .projects-grid, .practices-grid, .usecases-grid { grid-template-columns: 1fr; }
+  .courses-grid, .instructors-grid, .books-grid, .projects-grid, .practices-grid, .usecases-grid { grid-template-columns: 1fr; }
   body { cursor: auto; }
   button { cursor: pointer; }
   .custom-cursor, .custom-cursor-dot { display: none; }

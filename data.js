@@ -616,6 +616,80 @@ const BOOKS_DATA = [
 ];
 
 // =============================================
+// INSTRUCTORS DATA
+// =============================================
+const INSTRUCTORS_DATA = [
+  {
+    name: "Osama Elzero",
+    channel: "Elzero Web School",
+    region: "Arabic",
+    icon: "graduationCap",
+    iconBg: "rgba(16,185,129,.15)",
+    iconColor: "#34d399",
+    focus: "PHP fundamentals, Laravel basics, practical web development",
+    desc: "Arabic-first practical tutorials with broad backend/web coverage, useful for learners building their first consistent PHP roadmap.",
+    tags: ["Arabic", "Beginner Friendly", "Practical"],
+    links: [
+      { label: "YouTube Channel", url: "https://www.youtube.com/@ElzeroWebSchool" },
+      { label: "Official Website", url: "https://elzero.org/" }
+    ],
+    lastReviewed: "2026-04-10",
+    verificationNote: "References point to official channel/site identity pages."
+  },
+  {
+    name: "Jeffrey Way",
+    channel: "Laracasts",
+    region: "International",
+    icon: "lightning",
+    iconBg: "rgba(245,158,11,.15)",
+    iconColor: "#fbbf24",
+    focus: "Laravel, PHP architecture, testing, and production workflows",
+    desc: "One of the most established Laravel/PHP learning platforms with structured tracks from fundamentals to advanced engineering topics.",
+    tags: ["Laravel", "Advanced", "Structured Tracks"],
+    links: [
+      { label: "Laracasts", url: "https://laracasts.com/" },
+      { label: "Laravel Learn", url: "https://laravel.com/learn" }
+    ],
+    lastReviewed: "2026-04-10",
+    verificationNote: "Official learning platform and first-party Laravel learning directory references."
+  },
+  {
+    name: "Ryan Weaver & SymfonyCasts Team",
+    channel: "SymfonyCasts",
+    region: "International",
+    icon: "music",
+    iconBg: "rgba(99,102,241,.15)",
+    iconColor: "#a5b4fc",
+    focus: "Symfony, modern PHP, API development, testing workflows",
+    desc: "Trusted Symfony and modern PHP screencasts often referenced by Symfony's official ecosystem pages.",
+    tags: ["Symfony", "Modern PHP", "API"],
+    links: [
+      { label: "SymfonyCasts", url: "https://symfonycasts.com/" },
+      { label: "Symfony Learn Page", url: "https://symfony.com/learn" }
+    ],
+    lastReviewed: "2026-04-10",
+    verificationNote: "Referenced using official Symfony ecosystem/learning pages."
+  },
+  {
+    name: "Brad Traversy",
+    channel: "Traversy Media",
+    region: "International",
+    icon: "globe",
+    iconBg: "rgba(6,182,212,.15)",
+    iconColor: "#22d3ee",
+    focus: "Hands-on backend/web tutorials including Laravel and API implementation",
+    desc: "Practical project-based teaching style with clear implementations that complement formal docs and framework references.",
+    tags: ["Project Based", "Laravel", "Web APIs"],
+    links: [
+      { label: "YouTube Channel", url: "https://www.youtube.com/@TraversyMedia" },
+      { label: "Traversy Media Website", url: "https://www.traversymedia.com/" }
+    ],
+    lastReviewed: "2026-04-10",
+    verificationNote: "References point to the creator's official channel and primary website."
+  }
+];
+
+// =============================================
 // PROJECTS DATA
 // =============================================
 const PROJECTS_DATA = {
